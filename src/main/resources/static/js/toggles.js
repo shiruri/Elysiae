@@ -10,11 +10,16 @@
     var btn = document.getElementById('theme-toggle');
     if (!btn) return;
     btn.addEventListener('click', function() {
-      var isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem(key, isDark ? 'dark' : 'light');
+      var wasDark = document.documentElement.classList.contains('dark');
+      document.documentElement.classList.add('theme-transitioning');
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem(key, document.documentElement.classList.contains('dark') ? 'dark' : 'light');
       btn.classList.remove('toggling');
       void btn.offsetWidth;
       btn.classList.add('toggling');
+      setTimeout(function() {
+        document.documentElement.classList.remove('theme-transitioning');
+      }, 400);
     });
   });
 })();

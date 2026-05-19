@@ -5,6 +5,14 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    SCHEDULE_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "No Schedule found with that ID"
+    ),
+    DEPARTMENT_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "No Department found with that ID"
+    ),
     DOCTOR_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "No Doctor found with that ID"

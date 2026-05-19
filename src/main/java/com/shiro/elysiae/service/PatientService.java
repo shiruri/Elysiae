@@ -68,6 +68,7 @@ public class PatientService {
                 .map(patientMapper::toSummary);
     }
 
+    @Transactional(readOnly = true)
     public Page<MedicalRecordSummary> getMedicalRecords(long id, Pageable pageable) {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND)
@@ -79,6 +80,7 @@ public class PatientService {
         return records;
     }
 
+    @Transactional(readOnly = true)
     public Page<InvoiceSummary> getPatientInvoice(long id, Pageable pageable) {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND)
@@ -88,6 +90,7 @@ public class PatientService {
                 .findByPatientId(patient.getId(), pageable).map(invoiceMapper::toSummary);
     }
 
+    @Transactional(readOnly = true)
     public Page<AppointmentSummary> getAppointmentHistory(long id, Pageable pageable) {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND)
@@ -100,26 +103,13 @@ public class PatientService {
     }
 
     @Transactional(readOnly = true)
-    public PatientDetails findPatientById(long id, Pageable pageable) {
+    public PatientDetails findPatientById(long id) {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND)
         );
 
 
-        return new PatientDetails(
-                patient.getId(),
-                patient.getFirstName(),
-                patient.getLastName(),
-                patient.getDateOfBirth(),
-                patient.getGender(),
-                patient.getBloodType(),
-                patient.getPhone(),
-                patient.getEmail(),
-                patient.getAddress(),
-                patient.getEmergencyContactName(),
-                patient.getEmergencyContactPhone(),
-                LocalDateTime.now()
-                , null);
+        return patientMapper.toDetails(patient);
     }
 
     @Transactional
@@ -149,12 +139,12 @@ public class PatientService {
                 .emergencyContactPhone(request.emergencyContactPhone())
 
                 .build();
-        patientRepository.save(patient);
-        auditService.log(String.valueOf(AuditAction.PATIENT_CREATED), "Patient", patient.getId());
+        Patient saved = patientRepository.save(patient);
+        auditService.log(AuditAction.PATIENT_UPDATED.name(), saved.getFirstName() + " " + saved.getLastName(), saved.getId());
         return patient;
     }
 
-
+    @Transactional(readOnly = true)
     public Page<MedicalRecordSummary> getMedicalRecords(Pageable pageable) {
         Authentication auth = getAuthentication();
         long id = Long.parseLong(auth.getName());
@@ -165,6 +155,7 @@ public class PatientService {
                 .findByPatientId(patient.getId(), pageable).map(medicalRecordMapper::toRecordSummary);
     }
 
+    @Transactional(readOnly = true)
     public Page<AppointmentSummary> getAppointmentHistory(Pageable pageable) {
         Authentication auth = getAuthentication();
         long id = Long.parseLong(auth.getName());
@@ -176,6 +167,7 @@ public class PatientService {
                 .findByPatientId(patient.getId(), pageable).map(appointmentMapper::toSummary);
     }
 
+    @Transactional(readOnly = true)
     public Page<InvoiceSummary> getPatientInvoice(Pageable pageable) {
         Authentication auth = getAuthentication();
         long id = Long.parseLong(auth.getName());
@@ -188,7 +180,7 @@ public class PatientService {
     }
 
 
-    @Transactional
+    @Transactional(readOnly = true)
     public PatientDetails getCurrentPatient() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         long id = Long.parseLong(auth.getName());
@@ -197,20 +189,7 @@ public class PatientService {
         );
 
 
-        return new PatientDetails(
-                patient.getId(),
-                patient.getFirstName(),
-                patient.getLastName(),
-                patient.getDateOfBirth(),
-                patient.getGender(),
-                patient.getBloodType(),
-                patient.getPhone(),
-                patient.getEmail(),
-                patient.getAddress(),
-                patient.getEmergencyContactName(),
-                patient.getEmergencyContactPhone(),
-                LocalDateTime.now()
-                , null);
+        return patientMapper.toDetails(patient);
     }
 
     @Transactional
@@ -233,8 +212,9 @@ public class PatientService {
                     || request.gender().equalsIgnoreCase(String.valueOf(Gender.FEMALE))
                     || request.gender().equalsIgnoreCase(String.valueOf(Gender.OTHER))) {
                 patient.setGender(Gender.valueOf(request.gender().toUpperCase()));
+            }else {
+                throw new AppException(ErrorCode.INVALID_GENDER);
             }
-            throw new AppException(ErrorCode.INVALID_GENDER);
         }
         if (request.bloodType() != null && !request.bloodType().isBlank())
             patient.setBloodType(request.bloodType());
@@ -260,105 +240,25 @@ public class PatientService {
     public void deletePatient(long id) {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND));
-        validate(id);
+        validate(patient);
         patientRepository.delete(patient);
         auditService.log(AuditAction.PATIENT_DELETED.name(),patient.getFirstName() + " " + patient.getLastName(), patient.getId() );
     }
-
 
     private Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
-    private void validate(long id) {
+    private void validate(Patient patient) {
         Authentication auth = getAuthentication();
-
         long currentUserId = Long.parseLong(auth.getName());
-        boolean isSelf = currentUserId == id;
+        boolean isSelf = currentUserId == patient.getUser().getId();
         boolean isAdmin = auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
         if (!isSelf && !isAdmin) {
             throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
     }
 
-    @Transactional
-    public String reprintCredentialSlip(Long patientId) {
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_FOUND));
 
-        String tempPassword = patient.getUser().getUsername() + "-" + (1000 + new Random().nextInt(9000));
-
-        User user = patient.getUser();
-        user.setPassword(passwordEncoder.encode(tempPassword));
-        user.setMustChangePassword(true);
-        userRepository.save(user);
-
-        auditService.log(String.valueOf(AuditAction.PATIENT_CREDENTIAL_RESET), user.getUsername(), patientId);
-        return generatePatientCredentialSlip(patient, tempPassword);
-
-    }
-
-    public String generatePatientCredentialSlip(Patient patient, String tempPassword) {
-        return """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                  <meta charset="UTF-8">
-                  <style>
-                    * { margin: 0; padding: 0; box-sizing: border-box; }
-                    body {
-                      width: 80mm;
-                      font-family: 'Courier New', monospace;
-                      font-size: 11px;
-                      padding: 6px;
-                      color: #000;
-                    }
-                    .center  { text-align: center; }
-                    .bold    { font-weight: bold; }
-                    .divider { border-top: 1px dashed #000; margin: 6px 0; }
-                    .label   { font-weight: bold; margin-top: 6px; font-size: 10px; }
-                    .value   { font-size: 12px; margin-left: 4px; }
-                    .note    { font-size: 9px; font-style: italic; margin-top: 8px; text-align: center; }
-                    .hospital{ font-size: 15px; font-weight: bold; text-align: center; }
-                    .subtitle{ font-size: 10px; text-align: center; color: #444; }
-                    @media print {
-                      @page { margin: 0; size: 80mm auto; }
-                      body  { width: 80mm; }
-                    }
-                  </style>
-                </head>
-                <body>
-                  <div class="hospital">Elysiae Hospital</div>
-                  <div class="subtitle">Patient Credential Slip</div>
-                  <div class="divider"></div>
-                
-                  <div class="label">Patient Name</div>
-                  <div class="value">%s %s</div>
-                
-                  <div class="label">Username</div>
-                  <div class="value">%s</div>
-                
-                  <div class="label">Temporary Password</div>
-                  <div class="value bold">%s</div>
-                
-                  <div class="label">Date Registered</div>
-                  <div class="value">%s</div>
-                
-                  <div class="divider"></div>
-                  <div class="note">
-                    Please change your password upon first login.<br>
-                    Keep this slip confidential.
-                  </div>
-                </body>
-                </html>
-                """.formatted(
-                patient.getFirstName(),
-                patient.getLastName(),
-                patient.getUser().getUsername(),
-                tempPassword,
-                LocalDate.now()
-        );
-    }
 }

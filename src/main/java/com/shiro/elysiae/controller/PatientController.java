@@ -8,8 +8,10 @@ import com.shiro.elysiae.dto.response.billing.InvoiceSummary;
 import com.shiro.elysiae.dto.response.medical.MedicalRecordSummary;
 import com.shiro.elysiae.dto.response.patient.PatientDetails;
 import com.shiro.elysiae.dto.response.patient.PatientSummary;
+import com.shiro.elysiae.model.enums.Role;
 import com.shiro.elysiae.model.patient.Patient;
 import com.shiro.elysiae.service.PatientService;
+import com.shiro.elysiae.service.ReceiptService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class PatientController {
 
     private final PatientService patientService;
+    private final ReceiptService receiptService;
 
     @PreAuthorize("hasAnyRole('ADMIN','NURSE','RECEPTIONIST','DOCTOR')")
     @GetMapping
@@ -36,8 +39,8 @@ public class PatientController {
 
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','RECEPTIONIST')")
     @GetMapping("/{id}")
-    public ResponseEntity<PatientDetails> findPatientById(@PathVariable long id,Pageable pageable) {
-        return ResponseEntity.ok().body(patientService.findPatientById(id,pageable));
+    public ResponseEntity<PatientDetails> findPatientById(@PathVariable long id) {
+        return ResponseEntity.ok().body(patientService.findPatientById(id));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','RECEPTIONIST')")
@@ -96,7 +99,7 @@ public class PatientController {
     public ResponseEntity<String> createPatient(@Valid @RequestBody PatientCreateRequest request) {
         Patient patient = patientService.registerPatient(request);
         String tempPassword = patient.getUser().getTempPassword();
-        String slip = patientService.generatePatientCredentialSlip(patient, tempPassword);
+        String slip = receiptService.generatePatientCredentialSlip(patient, tempPassword);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
@@ -105,7 +108,7 @@ public class PatientController {
     @PreAuthorize("hasAnyRole('RECEPTIONIST','ADMIN')")
     @GetMapping("/{id}/slip")
     public ResponseEntity<String> reprintReceipt(@PathVariable long id) {
-        String  slip = patientService.reprintCredentialSlip(id);
+        String  slip = receiptService.reprintCredentialSlip(id, Role.PATIENT);
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
                 .body(slip);
