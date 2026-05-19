@@ -7,6 +7,7 @@ import com.shiro.elysiae.dto.response.department.DepartmentDetails;
 import com.shiro.elysiae.dto.response.department.DepartmentSummary;
 import com.shiro.elysiae.dto.response.doctor.DoctorSummary;
 import com.shiro.elysiae.service.DepartmentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +37,7 @@ public class DepartmentController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/register")
-    public ResponseEntity<DepartmentDetails> registerDepartment(DepartmentCreateRequest request) {
+    public ResponseEntity<DepartmentDetails> registerDepartment(@Valid @RequestBody DepartmentCreateRequest request) {
         return ResponseEntity.ok().body(departmentService.registerDepartment(request));
     }
 
@@ -48,7 +49,7 @@ public class DepartmentController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping()
-    public ResponseEntity<DepartmentDetails> updateDepartment(DepartmentUpdateRequest request) {
+    public ResponseEntity<DepartmentDetails> updateDepartment(@Valid @RequestBody DepartmentUpdateRequest request) {
         return ResponseEntity.ok().body(departmentService.updateDepartment(request));
     }
 

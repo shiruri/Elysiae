@@ -84,21 +84,34 @@ public class DoctorService {
                     .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
             doctor.setDepartment(department);
         }
-        if (!request.firstName().isBlank()) {
-            doctor.setFirstName(request.firstName());
+        if (request.firstName() != null) {
+            if (!request.firstName().isBlank()) {
+                doctor.setFirstName(request.firstName());
+            }
         }
-        if (!request.lastName().isBlank()) {
-            doctor.setLastName(request.lastName());
+        if (request.lastName() != null) {
+            if (!request.lastName().isBlank()) {
+                doctor.setLastName(request.lastName());
+            }
         }
-        if (!request.specialization().isBlank()) {
-            doctor.setSpecialization(request.specialization());
+        if (request.specialization() != null) {
+            if (!request.specialization().isBlank()) {
+                doctor.setSpecialization(request.specialization());
+            }
         }
-        if (!request.licenseNumber().isBlank()) {
-            doctor.setLicenseNumber(request.licenseNumber());
+
+        if (request.licenseNumber() != null) {
+            if (!request.licenseNumber().isBlank()) {
+                doctor.setLicenseNumber(request.licenseNumber());
+            }
         }
-        if (!request.phone().isBlank()) {
-            doctor.setPhone(request.phone());
+
+        if (request.phone() != null) {
+            if (!request.phone().isBlank()) {
+                doctor.setPhone(request.phone());
+            }
         }
+
         Doctor saved = doctorRepository.save(doctor);
         auditService.log(AuditAction.DOCTOR_UPDATED.name(), saved.getFirstName() + " " + saved.getLastName(), saved.getId());
         return doctorMapper.toDetails(saved);
@@ -111,7 +124,7 @@ public class DoctorService {
         User user = User.builder()
                 .username(request.username())
                 .password(passwordEncoder.encode(tempPassword))
-                .role(Role.PATIENT)
+                .role(Role.DOCTOR)
                 .tempPassword(tempPassword)
                 .mustChangePassword(true)
                 .build();
@@ -164,6 +177,7 @@ public class DoctorService {
                 pageable
         ).map(appointmentMapper::toSummary);
     }
+
     public Page<AppointmentSummary> getAssignedPatientsCurrentDoctor(Pageable pageable) {
         Authentication auth = getAuthentication();
         long currentUserId = Long.parseLong(auth.getName());

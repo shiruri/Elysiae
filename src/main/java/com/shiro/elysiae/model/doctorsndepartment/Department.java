@@ -3,6 +3,7 @@ package com.shiro.elysiae.model.doctorsndepartment;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,4 +44,7 @@ public class Department {
 
     @OneToMany(mappedBy = "department")
     private List<Doctor> doctors = new ArrayList<>();
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 }

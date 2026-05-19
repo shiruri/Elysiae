@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
@@ -59,12 +60,13 @@ public class AuthService {
             throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
         long userId = Long.parseLong(auth.getName());
-        Optional<User> user = userRepository.findById(userId);
-        if(user.isEmpty()) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (user.getDeletedAt() != null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
-        return userMapper.toDto(user.get());
+        return userMapper.toDto(user);
     }
     @Transactional
     public UserCreationResponse registerUser(UserCreateRequest request) {
@@ -96,6 +98,9 @@ public class AuthService {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_FOUND)
         );
+        if (user.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
 
         validate(request,id,user);
         String newPassword = passwordEncoder.encode(request.newPassword());
@@ -116,16 +121,23 @@ public class AuthService {
 
     public void deleteUser(long id) {
         validate(id);
-        if(userRepository.deleteById(id) < 1) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (user.getDeletedAt() != null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-        auditService.log(AuditAction.USER_DELETED.name(), "User",id);
+        user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
+        auditService.log(AuditAction.USER_DELETED.name(), "User", id);
     }
 
     public UserResponse updateUser(long id, UserUpdateRequest request) {
 
         User user = userRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (user.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
         if(request.username().isBlank() && request.role().name().isBlank()) {
             throw new AppException(ErrorCode.EMPTY_UPDATE);
         }

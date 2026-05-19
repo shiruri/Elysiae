@@ -10,7 +10,6 @@ import com.shiro.elysiae.exception.AppException;
 import com.shiro.elysiae.exception.ErrorCode;
 import com.shiro.elysiae.model.doctorsndepartment.Department;
 import com.shiro.elysiae.model.doctorsndepartment.Doctor;
-import com.shiro.elysiae.model.patient.Patient;
 import com.shiro.elysiae.repository.DepartmentRepository;
 import com.shiro.elysiae.repository.DoctorRepository;
 import com.shiro.elysiae.util.DepartmentMapper;
@@ -23,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Transactional
@@ -42,13 +42,16 @@ public class DepartmentService {
 
     @Transactional(readOnly = true)
     public Page<DepartmentSummary> getDepartments(Pageable pageable) {
-        return departmentRepository.findAll(pageable).map(departmentMapper::toDepartmentSummary);
+        return departmentRepository.findAllActive(pageable).map(departmentMapper::toDepartmentSummary);
     }
 
     @Transactional(readOnly = true)
     public DepartmentDetails getDepartmentById(long id) {
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+        if (department.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
+        }
         List<DoctorSummary> doctors = doctorRepository.searchByDepartmentId(id).stream().map(doctorMapper::toSummary).toList();
         return toDetails(department,doctors);
 
@@ -69,6 +72,9 @@ public class DepartmentService {
     public DepartmentDetails updateDepartment(DepartmentUpdateRequest request) {
         Department department = departmentRepository.findById(request.id())
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+        if (department.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
+        }
 
         if(!request.name().isBlank()) {
             department.setName(request.name());
@@ -83,8 +89,12 @@ public class DepartmentService {
     public void deleteDepartment(long id) {
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+        if (department.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
+        }
         validate();
-        departmentRepository.delete(department);
+        department.setDeletedAt(LocalDateTime.now());
+        departmentRepository.save(department);
     }
 
 

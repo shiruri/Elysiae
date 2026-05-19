@@ -11,11 +11,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 
 public interface PatientRepository extends JpaRepository<Patient,Long> {
-    java.util.Optional<Patient> findByUser_Id(Long userId);
+    @Query("SELECT p FROM Patient p WHERE p.user.id = :userId AND p.deletedAt IS NULL")
+    java.util.Optional<Patient> findByUser_Id(@Param("userId") Long userId);
 
     @Query("""
             SELECT p FROM Patient p
-            WHERE (:keyword IS NULL OR LOWER(p.firstName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            WHERE p.deletedAt IS NULL
+            AND   (:keyword IS NULL OR LOWER(p.firstName) LIKE LOWER(CONCAT('%', :keyword, '%'))
                                     OR LOWER(p.lastName)  LIKE LOWER(CONCAT('%', :keyword, '%'))
                                     OR LOWER(p.email)     LIKE LOWER(CONCAT('%', :keyword, '%')))
             AND   (:gender    IS NULL OR p.gender    = :gender)

@@ -14,15 +14,15 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    int deleteById(long id);
-
-    Optional<User> findByUsername(String username);
+    @Query("SELECT u FROM User u WHERE u.username = :username AND u.deletedAt IS NULL")
+    Optional<User> findByUsername(@Param("username") String username);
 
     boolean existsByUsername(String username);
 
     @Query("""
             SELECT u FROM User u
-            WHERE (:keyword  IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            WHERE u.deletedAt IS NULL
+            AND   (:keyword  IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')))
             AND   (:role     IS NULL OR u.role     = :role)
             AND   (:isActive IS NULL OR u.isActive = :isActive)
             """)

@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +74,9 @@ public class Patient {
 
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
 
     @PrePersist

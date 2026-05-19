@@ -73,6 +73,9 @@ public class PatientService {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND)
         );
+        if (patient.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.PATIENT_NOT_FOUND);
+        }
 
         Page<MedicalRecordSummary> records = medicalRecordRepository
                 .findByPatientId(patient.getId(), pageable).map(medicalRecordMapper::toRecordSummary);
@@ -85,6 +88,9 @@ public class PatientService {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND)
         );
+        if (patient.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.PATIENT_NOT_FOUND);
+        }
 
         return invoiceRepository
                 .findByPatientId(patient.getId(), pageable).map(invoiceMapper::toSummary);
@@ -95,6 +101,9 @@ public class PatientService {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND)
         );
+        if (patient.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.PATIENT_NOT_FOUND);
+        }
 
         Page<AppointmentSummary> appointments = appointmentRepository
                 .findByPatientId(patient.getId(), pageable).map(appointmentMapper::toSummary);
@@ -107,7 +116,9 @@ public class PatientService {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND)
         );
-
+        if (patient.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.PATIENT_NOT_FOUND);
+        }
 
         return patientMapper.toDetails(patient);
     }
@@ -197,6 +208,9 @@ public class PatientService {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND)
         );
+        if (patient.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.PATIENT_NOT_FOUND);
+        }
 
         if (request.firstName() != null && !request.firstName().isBlank())
             patient.setFirstName(request.firstName());
@@ -240,9 +254,13 @@ public class PatientService {
     public void deletePatient(long id) {
         Patient patient = patientRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND));
+        if (patient.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.PATIENT_NOT_FOUND);
+        }
         validate(patient);
-        patientRepository.delete(patient);
-        auditService.log(AuditAction.PATIENT_DELETED.name(),patient.getFirstName() + " " + patient.getLastName(), patient.getId() );
+        patient.setDeletedAt(LocalDateTime.now());
+        patientRepository.save(patient);
+        auditService.log(AuditAction.PATIENT_DELETED.name(), patient.getFirstName() + " " + patient.getLastName(), patient.getId());
     }
 
     private Authentication getAuthentication() {

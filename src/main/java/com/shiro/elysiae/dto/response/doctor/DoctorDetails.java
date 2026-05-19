@@ -7,18 +7,9 @@ public record DoctorDetails(
 
 
         Long id,
-
-
-
         Long userId,
         String username,
-        String email,
-
-
-
         DepartmentSummary department,
-
-
         String firstName,
         String lastName,
         String specialization,

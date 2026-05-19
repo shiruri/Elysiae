@@ -41,6 +41,10 @@ public class User {
     @Column(name = "created_at", updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @Transient
     private String tempPassword;
     }

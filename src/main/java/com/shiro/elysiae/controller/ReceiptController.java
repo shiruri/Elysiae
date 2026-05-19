@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/audit-log")
+@RequestMapping("/api/receipt")
 public class ReceiptController {
 
-    ReceiptService receiptService;
+    private final ReceiptService receiptService;
 
 
     @PreAuthorize("hasAnyRole('RECEPTIONIST','ADMIN')")
