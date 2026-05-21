@@ -33,6 +33,9 @@ public class ReceiptService {
         if (role.name().equals("PATIENT")) {
             Patient patient = patientRepository.findById(id)
                     .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_FOUND));
+            if (patient.getDeletedAt() != null) {
+                throw new AppException(ErrorCode.PATIENT_NOT_FOUND);
+            }
             String tempPassword = patient.getUser().getUsername() + "-" + (1000 + new Random().nextInt(9000));
 
             User user = patient.getUser();
@@ -59,6 +62,9 @@ public class ReceiptService {
         } else {
             User user = userRepository.findById(id)
                     .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            if (user.getDeletedAt() != null) {
+                throw new AppException(ErrorCode.USER_NOT_FOUND);
+            }
             String tempPassword = user.getUsername() + "-" + (1000 + new Random().nextInt(9000));
 
             user.setPassword(passwordEncoder.encode(tempPassword));

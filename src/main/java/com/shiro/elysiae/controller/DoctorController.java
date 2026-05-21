@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/doctor")
@@ -73,10 +72,11 @@ public class DoctorController {
         return ResponseEntity.ok().body(doctorService.getAssignedPatientsCurrentDoctor(pageable));
     }
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','RECEPTIONIST','PATIENT','NURSE')")
-    @PostMapping("/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<DoctorDetails> getDoctorById(@PathVariable long id) {
         return ResponseEntity.ok().body(doctorService.getByDoctorId(id));
     }
+
 
 
 }

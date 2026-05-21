@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -55,6 +54,7 @@ public class DoctorService {
     private final DoctorScheduleRepository doctorScheduleRepository;
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
+    private final AdmissionRepository admissionRepository;
 
     @Transactional(readOnly = true)
     public Page<DoctorSummary> searchDoctors(DoctorSearchRequest request, Pageable pageable) {
@@ -82,6 +82,9 @@ public class DoctorService {
         if (request.departmentId() != null) {
             Department department = departmentRepository.findById(request.departmentId())
                     .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+            if (department.getDeletedAt() != null) {
+                throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
+            }
             doctor.setDepartment(department);
         }
         if (request.firstName() != null) {
@@ -132,6 +135,9 @@ public class DoctorService {
 
         Department department = departmentRepository.findById(request.departmentId())
                 .orElseThrow(() -> new AppException(ErrorCode.DEPARTMENT_NOT_FOUND));
+        if (department.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DEPARTMENT_NOT_FOUND);
+        }
 
 
         Doctor doctor = Doctor.builder()
@@ -169,7 +175,7 @@ public class DoctorService {
     }
 
     public Page<AppointmentSummary> getAssignedPatients(long id, Pageable pageable) {
-        Doctor doctor = doctorRepository.findById(id)
+        Doctor doctor = doctorRepository.findByUserId(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
         return appointmentRepository.findAppointmentsByDoctorIdFrom(
                 doctor.getId(),
@@ -181,7 +187,7 @@ public class DoctorService {
     public Page<AppointmentSummary> getAssignedPatientsCurrentDoctor(Pageable pageable) {
         Authentication auth = getAuthentication();
         long currentUserId = Long.parseLong(auth.getName());
-        Doctor doctor = doctorRepository.findById(currentUserId)
+        Doctor doctor = doctorRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
         return appointmentRepository.findAppointmentsByDoctorIdFrom(
                 doctor.getId(),
@@ -189,6 +195,9 @@ public class DoctorService {
                 pageable
         ).map(appointmentMapper::toSummary);
     }
+
+
+
 
     public DoctorWeeklyScheduleResponse getDoctorSchedule(long id, DoctorScheduleRequest request) {
         Doctor doctor = doctorRepository.findById(id)

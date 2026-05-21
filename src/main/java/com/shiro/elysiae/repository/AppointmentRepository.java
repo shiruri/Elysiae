@@ -56,7 +56,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
     ORDER BY a.appointmentDateTime DESC
 """)
     Page<Appointment> searchAppointmentsByPatientId(
-            @Param("patientId") Long patientId,
+            @Param("user_id") Long userId,
             Pageable pageable
     );
     @Query("""

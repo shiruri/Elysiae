@@ -10,6 +10,7 @@ import com.shiro.elysiae.dto.response.appointment.AppointmentSummary;
 import com.shiro.elysiae.dto.response.doctor.DoctorSummary;
 import com.shiro.elysiae.exception.AppException;
 import com.shiro.elysiae.exception.ErrorCode;
+import com.shiro.elysiae.model.User;
 import com.shiro.elysiae.model.appointments.Appointment;
 import com.shiro.elysiae.model.doctorsndepartment.Doctor;
 import com.shiro.elysiae.model.doctorsndepartment.DoctorSchedule;
@@ -17,10 +18,7 @@ import com.shiro.elysiae.model.enums.AppointmentStatus;
 import com.shiro.elysiae.model.enums.AuditAction;
 import com.shiro.elysiae.model.enums.DayOfWeek;
 import com.shiro.elysiae.model.patient.Patient;
-import com.shiro.elysiae.repository.AppointmentRepository;
-import com.shiro.elysiae.repository.DoctorRepository;
-import com.shiro.elysiae.repository.DoctorScheduleRepository;
-import com.shiro.elysiae.repository.PatientRepository;
+import com.shiro.elysiae.repository.*;
 import com.shiro.elysiae.util.AppointmentMapper;
 import com.shiro.elysiae.util.AppointmentSlotMapper;
 import com.shiro.elysiae.util.DoctorMapper;
@@ -54,11 +52,15 @@ public class AppointmentService {
     private final DoctorMapper doctorMapper;
     private final DoctorScheduleRepository doctorScheduleRepository;
     private final AppointmentMapper appointmentMapper;
+    private final UserRepository userRepository;
 
     public AppointmentDetails createAppointment(AppointmentCreateRequest request) {
 
         Patient patient = patientRepository.findById(request.patientId()).orElseThrow(
                 () -> new AppException(ErrorCode.PATIENT_NOT_FOUND));
+        if (patient.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.PATIENT_NOT_FOUND);
+        }
         Doctor doctor = doctorRepository.findById(request.doctorId()).orElseThrow(
                 () -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
 
@@ -85,8 +87,10 @@ public class AppointmentService {
     }
 
     public Page<AppointmentSummary> getCurrentUserAppointments(Pageable pageable) {
+        Patient patient = patientRepository.findByUser_Id(getCurrentUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_FOUND));
         return appointmentRepository.searchAppointmentsByPatientId(
-                getCurrentUserId()
+                patient.getId()
                 ,pageable).map(appointmentMapper::toSummary);
     }
 
@@ -116,8 +120,14 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND)
         );
-        if(appointment.getPatient().getId() != getCurrentUserId()) {
-            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
+        User user = userRepository.findById(getCurrentUserId()).orElseThrow(
+                () -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND)
+        );
+
+        if(appointment.getPatient().getUser().getId() != getCurrentUserId()) {
+            if(!user.getRole().name().equalsIgnoreCase("ADMIN")) {
+                throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
+            }
         }
         if(appointmentDateTime  != null) {
             appointment.setAppointmentDateTime(appointmentDateTime);
@@ -136,7 +146,7 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND)
         );
-        if(appointment.getPatient().getId() != getCurrentUserId()) {
+        if(appointment.getPatient().getUser().getId() != getCurrentUserId()) {
             throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
         return appointmentMapper.toDetails(appointment);
@@ -155,7 +165,7 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findById(id).orElseThrow(
                 () -> new AppException(ErrorCode.APPOINTMENT_NOT_FOUND)
         );
-        if(appointment.getPatient().getId() != getCurrentUserId()) {
+        if(appointment.getPatient().getUser().getId() != getCurrentUserId()) {
             throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
         if(status.name().equalsIgnoreCase("CANCELLED")) {
