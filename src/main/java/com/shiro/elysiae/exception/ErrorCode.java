@@ -5,6 +5,27 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    MEDICINE_INSUFFICIENT_STOCK(
+            HttpStatus.BAD_REQUEST,
+            "Medicine Stock insufficient"
+    ),
+    MEDICINE_ALREADY_EXISTS(
+            HttpStatus.CONFLICT,
+            "Medicine Already exists"
+    ),
+    LICENSE_NUMBER_ALREADY_EXISTS(
+            HttpStatus.CONFLICT,
+            "License Number Already exists"
+    ),
+    DEPARTMENT_ALREADY_EXISTS(
+            HttpStatus.CONFLICT,
+            "Department Already exists"
+    ),
+    RECORD_SOURCE_REQUIRED(
+            HttpStatus.NOT_FOUND,
+            "No Record Resource found"
+    ),
+
     PATIENT_NOT_YET_ADMITTED(
             HttpStatus.NOT_FOUND,
             "No Admission found with that ID"

@@ -2,10 +2,8 @@ package com.shiro.elysiae.controller;
 
 import com.shiro.elysiae.dto.request.department.DepartmentCreateRequest;
 import com.shiro.elysiae.dto.request.department.DepartmentUpdateRequest;
-import com.shiro.elysiae.dto.request.doctor.DoctorSearchRequest;
 import com.shiro.elysiae.dto.response.department.DepartmentDetails;
 import com.shiro.elysiae.dto.response.department.DepartmentSummary;
-import com.shiro.elysiae.dto.response.doctor.DoctorSummary;
 import com.shiro.elysiae.service.DepartmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +39,7 @@ public class DepartmentController {
         return ResponseEntity.ok().body(departmentService.registerDepartment(request));
     }
 
-    @PreAuthorize("isAuthenticated")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<DepartmentDetails> getDepartmentById(@PathVariable long id) {
         return ResponseEntity.ok().body(departmentService.getDepartmentById(id));

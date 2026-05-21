@@ -40,10 +40,19 @@ public class AdmissionService {
     public AdmissionDetails admitPatient(BedAdmitPatientRequest request) {
         Patient patient = patientRepository.findById(request.patientId())
                 .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_FOUND));
+        if (patient.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.PATIENT_NOT_FOUND);
+        }
         Bed bed = bedRepository.findById(request.bedId())
                 .orElseThrow(() -> new AppException(ErrorCode.BED_NOT_FOUND));
+        if (bed.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.BED_NOT_FOUND);
+        }
         Doctor doctor = doctorRepository.findById(request.doctorId())
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
 
         if (bed.getStatus() == BedStatus.OCCUPIED)
             throw new AppException(ErrorCode.BED_NOT_AVAILABLE);
@@ -66,25 +75,31 @@ public class AdmissionService {
                 admission.getPatient().getId());
         return AdmissionDetails.from(admissionRepository.save(admission));
     }
-
+    @Transactional(readOnly = true)
     public Page<AdmissionSummary> getAdmissionByDoctorId(long id, Pageable pageable) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
         return admissionRepository.findByAdmittingDoctorId(
                 doctor.getId(),
                 pageable
         ).map(AdmissionSummary::from);
     }
-
+    @Transactional(readOnly = true)
     public Page<AdmissionSummary> getAdmissionByPatientId(long id, Pageable pageable) {
         Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.PATIENT_NOT_FOUND));
+        if (patient.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.PATIENT_NOT_FOUND);
+        }
         return admissionRepository.findByAdmissionFromPatientId(
                 patient.getId(),
                 pageable
         ).map(AdmissionSummary::from);
     }
-
+    @Transactional(readOnly = true)
     public AdmissionDetails getAdmissionDetails(long id) {
         Admission admission = admissionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ADMISSION_NOT_FOUND));
@@ -95,6 +110,9 @@ public class AdmissionService {
                 .orElseThrow(() -> new AppException(ErrorCode.ADMISSION_NOT_FOUND));
         Bed bed = bedRepository.findById(admission.getBed().getId()).orElseThrow(
                 () -> new AppException(ErrorCode.BED_NOT_FOUND));
+        if (bed.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.BED_NOT_FOUND);
+        }
         admission.setDischargedAt(LocalDateTime.now());
         admission.setDiagnosis(diagnosis);
         admission.setStatus(AdmissionStatus.DISCHARGED);
@@ -114,6 +132,9 @@ public class AdmissionService {
 
         Bed newBed = bedRepository.findById(request.newBedId())
                 .orElseThrow(() -> new AppException(ErrorCode.BED_NOT_FOUND));
+        if (newBed.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.BED_NOT_FOUND);
+        }
 
         if (newBed.getStatus() == BedStatus.OCCUPIED)
             throw new AppException(ErrorCode.BED_NOT_AVAILABLE);
@@ -122,6 +143,9 @@ public class AdmissionService {
                 ? doctorRepository.findById(request.newDoctorId())
                   .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND))
                 : currentAdmission.getAdmittingDoctor();
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
 
         currentAdmission.getBed().setStatus(BedStatus.AVAILABLE);
         currentAdmission.setStatus(AdmissionStatus.TRANSFERRED);

@@ -13,14 +13,16 @@ import java.util.List;
 @Repository
 public interface DoctorScheduleRepository extends JpaRepository<DoctorSchedule,Long> {
 
-    DoctorSchedule findByDoctorIdAndDayOfWeek(long id, DayOfWeek dayOfWeek);
+    @Query("SELECT ds FROM DoctorSchedule ds WHERE ds.doctor.id = :doctorId AND ds.dayOfWeek = :dayOfWeek AND ds.doctor.deletedAt IS NULL")
+    DoctorSchedule findByDoctorIdAndDayOfWeek(@Param("doctorId") long doctorId, @Param("dayOfWeek") DayOfWeek dayOfWeek);
 
-    @Query("SELECT ds FROM DoctorSchedule ds JOIN FETCH ds.doctor d WHERE d.id = :doctorId")
+    @Query("SELECT ds FROM DoctorSchedule ds JOIN FETCH ds.doctor d WHERE d.id = :doctorId AND d.deletedAt IS NULL")
     List<DoctorSchedule> findByDoctorId(@Param("doctorId") Long doctorId);
 
     @Query("""
         SELECT ds FROM DoctorSchedule ds
         WHERE ds.doctor.id = :doctorId
+        AND ds.doctor.deletedAt IS NULL
         AND ds.dayOfWeek = :dayOfWeek
         AND ds.startTime < :endTime
         AND ds.endTime > :startTime

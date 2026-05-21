@@ -29,7 +29,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
 
@@ -77,10 +76,8 @@ public class PatientService {
             throw new AppException(ErrorCode.PATIENT_NOT_FOUND);
         }
 
-        Page<MedicalRecordSummary> records = medicalRecordRepository
+        return medicalRecordRepository
                 .findByPatientId(patient.getId(), pageable).map(medicalRecordMapper::toRecordSummary);
-
-        return records;
     }
 
     @Transactional(readOnly = true)

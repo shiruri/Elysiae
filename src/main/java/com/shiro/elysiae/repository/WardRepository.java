@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 @Repository
 public interface WardRepository extends JpaRepository<Ward, Long> {
 
@@ -25,7 +24,8 @@ public interface WardRepository extends JpaRepository<Ward, Long> {
     )
     FROM Ward w
     LEFT JOIN w.beds b
-    WHERE (:name IS NULL OR LOWER(w.name) LIKE LOWER(CONCAT('%', :name, '%')))
+    WHERE w.deletedAt IS NULL
+      AND (:name IS NULL OR LOWER(w.name) LIKE LOWER(CONCAT('%', :name, '%')))
       AND (:type IS NULL OR w.type = :type)
       AND (:floor IS NULL OR LOWER(w.floor) LIKE LOWER(CONCAT('%', :floor, '%')))
     GROUP BY w.id, w.name, w.type, w.floor

@@ -9,7 +9,6 @@ import com.shiro.elysiae.dto.response.doctor.DoctorSummary;
 import com.shiro.elysiae.exception.AppException;
 import com.shiro.elysiae.exception.ErrorCode;
 import com.shiro.elysiae.model.doctorsndepartment.Department;
-import com.shiro.elysiae.model.doctorsndepartment.Doctor;
 import com.shiro.elysiae.repository.DepartmentRepository;
 import com.shiro.elysiae.repository.DoctorRepository;
 import com.shiro.elysiae.util.DepartmentMapper;
@@ -64,6 +63,9 @@ public class DepartmentService {
                 .name(request.name())
                 .floor(request.floor())
                 .build();
+        if (departmentRepository.existsByNameIgnoreCaseAndDeletedAtIsNull(request.name()))
+            throw new AppException(ErrorCode.DEPARTMENT_ALREADY_EXISTS);
+
         departmentRepository.save(department);
         return departmentMapper.toDepartmentDetails(department);
     }

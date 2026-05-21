@@ -85,7 +85,7 @@ public class AppointmentController {
     }
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','NURSE','RECEPTIONIST')")
     @GetMapping("/slot")
-    public ResponseEntity<AppointmentAvailableDates> getDoctorAvailableSlot(@RequestParam AppointmentSlotsRequest request) {
+    public ResponseEntity<AppointmentAvailableDates> getDoctorAvailableSlot(@RequestBody AppointmentSlotsRequest request) {
         return ResponseEntity.ok().body(appointmentService.getAvailableDates(request));
     }
 }

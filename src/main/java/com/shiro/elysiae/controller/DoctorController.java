@@ -1,15 +1,11 @@
 package com.shiro.elysiae.controller;
 
-import com.shiro.elysiae.dto.request.department.DepartmentCreateRequest;
 import com.shiro.elysiae.dto.request.doctor.*;
 import com.shiro.elysiae.dto.response.appointment.AppointmentSummary;
-import com.shiro.elysiae.dto.response.department.DepartmentDetails;
 import com.shiro.elysiae.dto.response.doctor.DoctorDetails;
 import com.shiro.elysiae.dto.response.doctor.DoctorScheduleResponse;
 import com.shiro.elysiae.dto.response.doctor.DoctorSummary;
 import com.shiro.elysiae.dto.response.doctor.DoctorWeeklyScheduleResponse;
-import com.shiro.elysiae.dto.response.patient.PatientSummary;
-import com.shiro.elysiae.model.doctorsndepartment.DoctorSchedule;
 import com.shiro.elysiae.service.DoctorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/doctor")
@@ -55,9 +52,8 @@ public class DoctorController {
 
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','RECEPTIONIST','PATIENT')")
     @PostMapping("/{id}/schedule")
-    public ResponseEntity<DoctorWeeklyScheduleResponse> getDoctorWeeklySchedule(@PathVariable long id,
-                                                                                @Valid @RequestBody DoctorScheduleRequest request) {
-        return ResponseEntity.ok().body(doctorService.getDoctorSchedule(id,request));
+    public ResponseEntity<DoctorWeeklyScheduleResponse> getDoctorWeeklySchedule(@PathVariable long id) {
+        return ResponseEntity.ok().body(doctorService.getDoctorSchedule(id));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','NURSE')")
@@ -77,6 +73,11 @@ public class DoctorController {
         return ResponseEntity.ok().body(doctorService.getByDoctorId(id));
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDoctor(@PathVariable long id) {
+        doctorService.deleteDoctor(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }

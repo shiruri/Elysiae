@@ -14,6 +14,7 @@ public interface BedRepository extends JpaRepository<Bed, Long> {
         SELECT b
         FROM Bed b
         WHERE b.ward.id = :wardId
+          AND b.deletedAt IS NULL
           AND (:status IS NULL OR b.status = :status)
     """)
     Page<Bed> findByWardAndStatus(

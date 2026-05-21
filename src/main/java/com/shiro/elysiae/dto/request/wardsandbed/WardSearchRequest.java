@@ -1,8 +1,6 @@
 package com.shiro.elysiae.dto.request.wardsandbed;
 
 import com.shiro.elysiae.model.enums.WardType;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record WardSearchRequest(

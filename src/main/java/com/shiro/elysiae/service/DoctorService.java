@@ -1,10 +1,7 @@
 package com.shiro.elysiae.service;
 
-import com.shiro.elysiae.dto.request.department.DepartmentCreateRequest;
-import com.shiro.elysiae.dto.request.department.DepartmentUpdateRequest;
 import com.shiro.elysiae.dto.request.doctor.*;
 import com.shiro.elysiae.dto.response.appointment.AppointmentSummary;
-import com.shiro.elysiae.dto.response.department.DepartmentDetails;
 import com.shiro.elysiae.dto.response.doctor.DoctorDetails;
 import com.shiro.elysiae.dto.response.doctor.DoctorScheduleResponse;
 import com.shiro.elysiae.dto.response.doctor.DoctorSummary;
@@ -12,15 +9,12 @@ import com.shiro.elysiae.dto.response.doctor.DoctorWeeklyScheduleResponse;
 import com.shiro.elysiae.exception.AppException;
 import com.shiro.elysiae.exception.ErrorCode;
 import com.shiro.elysiae.model.User;
-import com.shiro.elysiae.model.appointments.Appointment;
 import com.shiro.elysiae.model.doctorsndepartment.Department;
 import com.shiro.elysiae.model.doctorsndepartment.Doctor;
 import com.shiro.elysiae.model.doctorsndepartment.DoctorSchedule;
 import com.shiro.elysiae.model.enums.AuditAction;
 import com.shiro.elysiae.model.enums.DayOfWeek;
-import com.shiro.elysiae.model.enums.Gender;
 import com.shiro.elysiae.model.enums.Role;
-import com.shiro.elysiae.model.patient.Patient;
 import com.shiro.elysiae.repository.*;
 import com.shiro.elysiae.util.AppointmentMapper;
 import com.shiro.elysiae.util.DoctorMapper;
@@ -34,9 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -54,7 +47,6 @@ public class DoctorService {
     private final DoctorScheduleRepository doctorScheduleRepository;
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
-    private final AdmissionRepository admissionRepository;
 
     @Transactional(readOnly = true)
     public Page<DoctorSummary> searchDoctors(DoctorSearchRequest request, Pageable pageable) {
@@ -68,14 +60,21 @@ public class DoctorService {
 
     @Transactional(readOnly = true)
     public DoctorDetails getByDoctorId(long id) {
-        return doctorMapper.toDetails(doctorRepository.findById(id).orElseThrow(
-                () -> new AppException(ErrorCode.DOCTOR_NOT_FOUND)));
+        Doctor doctor = doctorRepository.findById(id).orElseThrow(
+                () -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
+        return doctorMapper.toDetails(doctor);
     }
 
     @Transactional
     public DoctorDetails updateDoctor(long id, DoctorUpdateRequest request) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
 
         validate(doctor);
 
@@ -123,7 +122,8 @@ public class DoctorService {
     @Transactional
     public DoctorDetails registerDoctor(DoctorCreateRequest request) {
         String tempPassword = request.username() + "-" + (1000 + new Random().nextInt(9000));
-
+        if (doctorRepository.existsByLicenseNumberAndDeletedAtIsNull(request.licenseNumber()))
+            throw new AppException(ErrorCode.LICENSE_NUMBER_ALREADY_EXISTS);
         User user = User.builder()
                 .username(request.username())
                 .password(passwordEncoder.encode(tempPassword))
@@ -148,7 +148,6 @@ public class DoctorService {
                 .specialization(request.specialization())
                 .licenseNumber(request.licenseNumber())
                 .phone(request.phone())
-                .phone(request.phone())
                 .build();
         Doctor saved = doctorRepository.save(doctor);
         auditService.log(AuditAction.DOCTOR_CREATED.name(), saved.getFirstName() + " " + saved.getLastName(), saved.getId());
@@ -159,6 +158,9 @@ public class DoctorService {
     public DoctorScheduleResponse updateDoctorSchedule(long id, DoctorScheduleUpdateRequest request) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
 
         validate(doctor);
 
@@ -175,8 +177,11 @@ public class DoctorService {
     }
 
     public Page<AppointmentSummary> getAssignedPatients(long id, Pageable pageable) {
-        Doctor doctor = doctorRepository.findByUserId(id)
+        Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
         return appointmentRepository.findAppointmentsByDoctorIdFrom(
                 doctor.getId(),
                 LocalDateTime.now(),
@@ -189,6 +194,9 @@ public class DoctorService {
         long currentUserId = Long.parseLong(auth.getName());
         Doctor doctor = doctorRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
         return appointmentRepository.findAppointmentsByDoctorIdFrom(
                 doctor.getId(),
                 LocalDateTime.now(),
@@ -199,9 +207,12 @@ public class DoctorService {
 
 
 
-    public DoctorWeeklyScheduleResponse getDoctorSchedule(long id, DoctorScheduleRequest request) {
+    public DoctorWeeklyScheduleResponse getDoctorSchedule(long id) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
 
         Map<DayOfWeek, List<DoctorScheduleResponse>> scheduleByDay = doctorScheduleRepository
                 .findByDoctorId(id)
@@ -214,6 +225,18 @@ public class DoctorService {
                 doctor.getFirstName() + " " + doctor.getLastName(),
                 scheduleByDay
         );
+    }
+
+
+    public void deleteDoctor(long id) {
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
+        doctor.setDeletedAt(LocalDateTime.now());
+        doctorRepository.save(doctor);
+        auditService.log(AuditAction.DOCTOR_DELETED.name(), doctor.getFirstName() + " " + doctor.getLastName(), doctor.getId());
     }
 
 

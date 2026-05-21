@@ -4,6 +4,7 @@ package com.shiro.elysiae.model.ehrnprescriptionsnvitals;
 import com.shiro.elysiae.model.appointments.Appointment;
 import com.shiro.elysiae.model.doctorsndepartment.Doctor;
 import com.shiro.elysiae.model.patient.Patient;
+import com.shiro.elysiae.model.wardsbedsadmission.Admission;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +17,8 @@ import java.util.List;
         indexes = {
                 @Index(name = "idx_records_patient_date", columnList = "patient_id, record_date"),
                 @Index(name = "idx_records_doctor", columnList = "doctor_id"),
-                @Index(name = "idx_records_appointment", columnList = "appointment_id")
+                @Index(name = "idx_records_appointment", columnList = "appointment_id"),
+                @Index(name = "idx_records_admission", columnList = "admission_id")
         }
 )
 @Getter
@@ -39,8 +41,12 @@ public class MedicalRecord {
     private Doctor doctor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id", referencedColumnName = "id")
+    @JoinColumn(name = "appointment_id", nullable = true)
     private Appointment appointment;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admission_id", nullable = true)
+    private Admission admission;
 
     @Column(name = "diagnosis", columnDefinition = "TEXT")
     private String diagnosis;

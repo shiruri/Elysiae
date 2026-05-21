@@ -17,6 +17,7 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
              OR LOWER(d.floor) LIKE LOWER(CONCAT('%', :keyword, '%')))
     """)
     Page<Department> searchDepartments(String keyword, Pageable pageable);
+    boolean existsByNameIgnoreCaseAndDeletedAtIsNull(String name);
 
     @Query("SELECT d FROM Department d WHERE d.deletedAt IS NULL")
     Page<Department> findAllActive(Pageable pageable);

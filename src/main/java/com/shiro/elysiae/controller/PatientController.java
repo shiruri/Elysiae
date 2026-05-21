@@ -30,7 +30,7 @@ public class PatientController {
     private final ReceiptService receiptService;
 
     @PreAuthorize("hasAnyRole('ADMIN','NURSE','RECEPTIONIST','DOCTOR')")
-    @GetMapping
+    @PostMapping("/get-patients")
     public ResponseEntity<Page<PatientSummary>> getPatients(
             @Valid @RequestBody PatientSearchRequest patientSearchRequest
             ,Pageable pageable) {

@@ -5,6 +5,7 @@ import com.shiro.elysiae.model.enums.WardType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -33,4 +34,7 @@ public class Ward {
 
     @OneToMany(mappedBy = "ward", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Bed> beds;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 }

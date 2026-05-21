@@ -47,13 +47,13 @@ tailwind.config = {
         Hospital Management System
       </div>
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1] mb-5 anim-slide-up" style="animation-delay:120ms">Modern healthcare<br><span class="gradient-text">management platform</span></h1>
-      <p class="text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-[540px] mb-8 anim-slide-up" style="animation-delay:190ms">Streamline patient care, appointments, records, billing, and pharmacy — all in one secure, integrated system.</p>
+      <p class="text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-[540px] mb-8 anim-slide-up" style="animation-delay:190ms">Streamline patient care, appointments, records, admissions, billing, and departments — all in one secure, integrated system.</p>
       <div class="flex flex-wrap gap-3">
         <a href="login.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors shadow-sm">Get started</a>
         <a href="#features" class="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Learn more</a>
       </div>
       <div class="flex flex-wrap gap-8 mt-10 text-sm text-slate-500">
-        <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary-600"><polyline points="20 6 9 17 4 12"/></svg> 10+ modules</span>
+        <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary-600"><polyline points="20 6 9 17 4 12"/></svg> 9 modules</span>
         <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary-600"><polyline points="20 6 9 17 4 12"/></svg> 8 roles</span>
         <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary-600"><polyline points="20 6 9 17 4 12"/></svg> JWT secured</span>
       </div>
@@ -80,18 +80,23 @@ tailwind.config = {
       </a>
       <a href="wards/wards.html" class="block p-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md hover:-translate-y-0.5 transition-all">
         <div class="w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h4"/></svg></div>
-        <h3 class="font-semibold text-slate-900 dark:text-white mb-2">Wards & beds</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Bed availability dashboard, admission, discharge, and transfer tracking.</p>
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-2">Wards &amp; beds</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Ward management, bed allocation, availability tracking, and maintenance.</p>
+      </a>
+      <a href="admissions/admissions.html" class="block p-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-2">Admissions</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Patient admission, discharge, ward transfers, and doctor assignment.</p>
+      </a>
+      <a href="departments/departments.html" class="block p-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <div class="w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+        <h3 class="font-semibold text-slate-900 dark:text-white mb-2">Departments</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Hospital department management, doctor assignments, and floor organization.</p>
       </a>
       <a href="records/records.html" class="block p-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md hover:-translate-y-0.5 transition-all">
         <div class="w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
         <h3 class="font-semibold text-slate-900 dark:text-white mb-2">EHR records</h3>
         <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Diagnosis, prescriptions, lab orders, vital signs, and treatment history.</p>
-      </a>
-      <a href="pharmacy/pharmacy.html" class="block p-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md hover:-translate-y-0.5 transition-all">
-        <div class="w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5l10-10a4.95 4.95 0 0 0-7-7l-10 10a4.95 4.95 0 0 0 7 7z"/><line x1="9" y1="15" x2="15" y2="9"/></svg></div>
-        <h3 class="font-semibold text-slate-900 dark:text-white mb-2">Pharmacy</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Medication inventory, prescription dispensing, stock alerts, and more.</p>
       </a>
       <a href="billing/billing.html" class="block p-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md hover:-translate-y-0.5 transition-all">
         <div class="w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
@@ -120,7 +125,7 @@ tailwind.config = {
         <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs">A modern hospital management platform built with Spring Boot, JWT security, and MySQL.</p>
       </div>
       <div><h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">Pages</h4><div class="flex flex-col gap-2"><a href="dashboard/dashboard.html" class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Dashboard</a><a href="login.html" class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Sign in</a><a href="#features" class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">Features</a></div></div>
-      <div><h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">Modules</h4><div class="flex flex-col gap-2"><span class="text-sm text-slate-500 dark:text-slate-400">Patient management</span><span class="text-sm text-slate-500 dark:text-slate-400">Appointments</span><span class="text-sm text-slate-500 dark:text-slate-400">EHR records</span><span class="text-sm text-slate-500 dark:text-slate-400">Pharmacy</span></div></div>
+      <div><h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">Modules</h4><div class="flex flex-col gap-2"><span class="text-sm text-slate-500 dark:text-slate-400">Patient management</span><span class="text-sm text-slate-500 dark:text-slate-400">Appointments</span><span class="text-sm text-slate-500 dark:text-slate-400">EHR records</span><span class="text-sm text-slate-500 dark:text-slate-400">Wards & beds</span><span class="text-sm text-slate-500 dark:text-slate-400">Admissions</span><span class="text-sm text-slate-500 dark:text-slate-400">Departments</span></div></div>
       <div><h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-4">Tech</h4><div class="flex flex-col gap-2"><span class="text-sm text-slate-500 dark:text-slate-400">Spring Boot</span><span class="text-sm text-slate-500 dark:text-slate-400">Spring Security</span><span class="text-sm text-slate-500 dark:text-slate-400">JWT Auth</span><span class="text-sm text-slate-500 dark:text-slate-400">MySQL</span></div></div>
     </div>
     <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 text-center text-sm text-slate-400 dark:text-slate-500">&copy; 2026 Elysiae. All rights reserved.</div>

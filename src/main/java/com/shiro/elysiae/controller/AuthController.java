@@ -45,7 +45,7 @@ public class AuthController {
         return ResponseEntity.ok().body(authService.changePassword(request,id));
     }
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping()
+    @PostMapping("/search-users")
     public ResponseEntity<Page<UserResponse>> getUsers(@RequestBody UserSearchRequest request,
                                                        Pageable pageable) {
         return ResponseEntity.ok().body(authService.getUsers(request,pageable));

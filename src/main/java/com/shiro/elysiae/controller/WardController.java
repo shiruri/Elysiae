@@ -1,7 +1,6 @@
 package com.shiro.elysiae.controller;
 
 import com.shiro.elysiae.dto.request.wardsandbed.BedAddRequest;
-import com.shiro.elysiae.dto.request.wardsandbed.BedAdmitPatientRequest;
 import com.shiro.elysiae.dto.request.wardsandbed.WardCreateRequest;
 import com.shiro.elysiae.dto.request.wardsandbed.WardSearchRequest;
 import com.shiro.elysiae.dto.response.wardsandbeds.BedDetails;
@@ -61,6 +60,19 @@ public class WardController {
         return ResponseEntity.ok().body(wardService.getWardDetails(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/ward/{id}")
+    public ResponseEntity<Void> deleteWard(@PathVariable long id) {
+        wardService.deleteWard(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/bed/{id}")
+    public ResponseEntity<Void> deleteBed(@PathVariable long id) {
+        wardService.deleteBed(id);
+        return ResponseEntity.noContent().build();
+    }
 
 
 

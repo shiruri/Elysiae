@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings - Elysiae</title>
+<script src="../js/toggles.js"></script>
+<script src="../js/app.js" defer></script>
+<script src="../js/modals.js" defer></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: { extend: {
+    colors: { primary: { 50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4', 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 800: '#115e59', 900: '#134e4a' } },
+    fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] }
+  } }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="page-loader" id="loader"><div class="loader-spin"></div></div>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-hdr">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    <span>Elysiae</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="../dashboard/dashboard.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span>Dashboard</span></a>
+    <a href="../appointments/appointments.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span>Appointments</span></a>
+    <a href="../patients/patients.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Patients</span></a>
+    <a href="../doctors/doctors.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Doctors</span></a>
+
+    <div class="nav-label">Clinical</div>
+    <a href="../records/records.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span>EHR Records</span></a>
+
+    <div class="nav-label">Operations</div>
+    <a href="../wards/wards.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h4"/></svg></span><span>Wards &amp; Beds</span></a>
+    <a href="../admissions/admissions.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><span>Admissions</span></a>
+    <a href="../departments/departments.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span>Departments</span></a>
+    <a href="../billing/billing.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span>Billing</span></a>
+    <a href="../reports/reports.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span>Reports</span></a>
+  </nav>
+  <div class="sidebar-ftr">
+    <a href="../settings/settings.html" class="nav-item active"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span></a>
+    <a href="../staff/staff.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Staff</span></a>
+    <a href="../login.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span style="color:#ef4444">Sign out</span></a>
+  </div>
+  <div class="sidebar-drag"></div>
+  <div class="sidebar-pos-grip"></div>
+</aside>
+
+<div class="swipe-indicator"></div>
+
+<header class="topbar">
+  <div class="flex items-center gap-3">
+    <button class="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" id="sidebar-toggle">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="relative hidden sm:block">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      <input type="text" class="w-48 lg:w-64 pl-9 pr-3 py-1.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20 transition-all placeholder:text-slate-400" placeholder="Search..." readonly onfocus="this.blur()">
+    </div>
+  </div>
+  <div class="flex items-center gap-1">
+    <button class="theme-btn w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" id="theme-toggle">
+      <span class="light-icon theme-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></span>
+      <span class="dark-icon theme-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+    </button>
+    <a href="../profile/profile.html" class="flex items-center gap-2 ml-1 pr-2 pl-1.5 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+      <div class="avatar" style="background:linear-gradient(135deg,#14b8a6,#0d9488)">AD</div>
+      <div class="hidden sm:block leading-tight"><div class="text-sm font-medium text-slate-800 dark:text-white">Admin</div><div class="text-[11px] text-slate-400">Administrator</div></div>
+    </a>
+  </div>
+</header>
+
+<div id="a11y-live" role="status" aria-live="polite" aria-atomic="true"></div><main class="main-wrap page-enter">
+  <nav class="breadcrumb">
+    <a href="../dashboard/dashboard.html">Home</a>
+    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    <span>Settings</span>
+  </nav>
+  <div class="page-hdr">
+    <div><h1>Settings</h1><p>Shortcuts, navigation, display preferences &amp; help</p></div>
+  </div>
+
+  <div class="tab-bar" id="settings-tabs">
+    <button class="tab-item active" data-tab="shortcuts">Shortcuts</button>
+    <button class="tab-item" data-tab="navigate">Navigate</button>
+    <button class="tab-item" data-tab="display">Display</button>
+    <button class="tab-item" data-tab="accessibility">Accessibility</button>
+    <button class="tab-item" data-tab="guide">Help</button>
+  </div>
+
+  <!-- KEYBOARD SHORTCUTS TAB -->
+  <div id="tab-shortcuts" class="settings-tab-content">
+    <div class="grid-2">
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Go-To Shortcuts</h3></div>
+        <div style="padding:1rem">
+          <p style="font-size:.75rem;color:var(--text3);margin-bottom:.75rem">Press <kbd style="background:var(--bg);padding:2px 6px;border-radius:4px;border:1px solid var(--border);font-size:.6875rem">G</kbd> then a letter</p>
+          <div class="shortcut-list">
+            <div class="shortcut-item"><div class="shortcut-label">Dashboard</div><div class="shortcut-keys"><kbd>G</kbd><kbd>D</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Patients</div><div class="shortcut-keys"><kbd>G</kbd><kbd>P</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Appointments</div><div class="shortcut-keys"><kbd>G</kbd><kbd>A</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Doctors</div><div class="shortcut-keys"><kbd>G</kbd><kbd>O</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Records</div><div class="shortcut-keys"><kbd>G</kbd><kbd>R</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Wards</div><div class="shortcut-keys"><kbd>G</kbd><kbd>W</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Admissions</div><div class="shortcut-keys"><kbd>G</kbd><kbd>M</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Departments</div><div class="shortcut-keys"><kbd>G</kbd><kbd>E</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Billing</div><div class="shortcut-keys"><kbd>G</kbd><kbd>B</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Reports</div><div class="shortcut-keys"><kbd>G</kbd><kbd>T</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Staff</div><div class="shortcut-keys"><kbd>G</kbd><kbd>S</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Settings</div><div class="shortcut-keys"><kbd>G</kbd><kbd>G</kbd></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Quick Actions</h3></div>
+        <div style="padding:1rem">
+          <p style="font-size:.75rem;color:var(--text3);margin-bottom:.75rem">Hold <kbd style="background:var(--bg);padding:2px 6px;border-radius:4px;border:1px solid var(--border);font-size:.6875rem">Ctrl</kbd> + key</p>
+          <div class="shortcut-list">
+            <div class="shortcut-item"><div class="shortcut-label">Toggle sidebar</div><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>B</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Toggle dark mode</div><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>D</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Accessibility panel</div><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>A</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Reading guide</div><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>R</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Bigger font</div><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>+</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Smaller font</div><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>-</kbd></div></div>
+            <div class="shortcut-item"><div class="shortcut-label">Show shortcut list</div><div class="shortcut-keys"><kbd>?</kbd></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tbl" style="margin-top:1.25rem">
+      <div class="tbl-hdr"><h3>Tips</h3></div>
+      <div style="padding:1.25rem">
+        <ul style="font-size:.8125rem;color:var(--text2);padding-left:1.25rem;line-height:2">
+          <li>Shortcuts don't work while typing in forms or search boxes.</li>
+          <li>On Mac, <kbd style="background:var(--bg);padding:2px 6px;border-radius:4px;border:1px solid var(--border);font-size:.6875rem">Cmd</kbd> replaces <kbd style="background:var(--bg);padding:2px 6px;border-radius:4px;border:1px solid var(--border);font-size:.6875rem">Ctrl</kbd>.</li>
+          <li>Press <kbd style="background:var(--bg);padding:2px 6px;border-radius:4px;border:1px solid var(--border);font-size:.6875rem">?</kbd> on any page to see available shortcuts.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK NAVIGATE TAB -->
+  <div id="tab-navigate" class="settings-tab-content" style="display:none">
+    <div class="grid-3">
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Main</h3></div>
+        <div style="padding:1rem">
+          <div class="nav-grid">
+            <a href="../dashboard/dashboard.html" class="nav-grid-item"><span class="nav-grid-icon teal"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span>Dashboard</span></a>
+            <a href="../appointments/appointments.html" class="nav-grid-item"><span class="nav-grid-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span>Appointments</span></a>
+            <a href="../patients/patients.html" class="nav-grid-item"><span class="nav-grid-icon amber"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Patients</span></a>
+            <a href="../doctors/doctors.html" class="nav-grid-item"><span class="nav-grid-icon purple"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Doctors</span></a>
+          </div>
+        </div>
+      </div>
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Clinical</h3></div>
+        <div style="padding:1rem">
+          <div class="nav-grid">
+            <a href="../records/records.html" class="nav-grid-item"><span class="nav-grid-icon teal"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span>EHR Records</span></a>
+            <a href="../admissions/admissions.html" class="nav-grid-item"><span class="nav-grid-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><span>Admissions</span></a>
+            <a href="../departments/departments.html" class="nav-grid-item"><span class="nav-grid-icon amber"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span>Departments</span></a>
+          </div>
+        </div>
+      </div>
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Operations</h3></div>
+        <div style="padding:1rem">
+          <div class="nav-grid">
+            <a href="../wards/wards.html" class="nav-grid-item"><span class="nav-grid-icon purple"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h4"/></svg></span><span>Wards &amp; Beds</span></a>
+            <a href="../billing/billing.html" class="nav-grid-item"><span class="nav-grid-icon teal"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span>Billing</span></a>
+            <a href="../reports/reports.html" class="nav-grid-item"><span class="nav-grid-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span>Reports</span></a>
+            <a href="../staff/staff.html" class="nav-grid-item"><span class="nav-grid-icon amber"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Staff</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:1.25rem">
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Account</h3></div>
+        <div style="padding:1rem">
+          <div class="nav-grid">
+            <a href="../profile/profile.html" class="nav-grid-item"><span class="nav-grid-icon teal"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Profile</span></a>
+            <a href="../settings/settings.html" class="nav-grid-item"><span class="nav-grid-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span></a>
+            <a href="../login.html" class="nav-grid-item"><span class="nav-grid-icon" style="background:#fef2f2;color:#ef4444"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span style="color:#ef4444">Sign Out</span></a>
+          </div>
+        </div>
+      </div>
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>About</h3></div>
+        <div style="padding:1.25rem">
+          <div class="info-list">
+            <div class="info-row"><span class="info-label">App</span><span class="info-value">Elysiae Hospital Management</span></div>
+            <div class="info-row"><span class="info-label">Version</span><span class="info-value">1.0.0</span></div>
+            <div class="info-row"><span class="info-label">Your role</span><span class="info-value">Administrator</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISPLAY TAB -->
+  <div id="tab-display" class="settings-tab-content" style="display:none">
+    <div class="grid-2">
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Theme</h3></div>
+        <div style="padding:1.25rem">
+          <div class="settings-group">
+            <div class="settings-group-label">Appearance</div>
+            <div class="settings-option" id="display-theme-toggle">
+              <div><div class="settings-option-label">Dark mode</div><div class="settings-option-desc">Switch between light and dark themes</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0" id="theme-switch"></div>
+            </div>
+          </div>
+          <div class="settings-group" style="margin-top:1rem">
+            <div class="settings-group-label">Font size</div>
+            <div class="settings-pills" id="settings-font">
+              <button class="settings-pill" data-value="sm">A-</button>
+              <button class="settings-pill active" data-value="md">A</button>
+              <button class="settings-pill" data-value="lg">A+</button>
+              <button class="settings-pill" data-value="xl">A++</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Layout</h3></div>
+        <div style="padding:1.25rem">
+          <div class="settings-group">
+            <div class="settings-group-label">Sidebar position</div>
+            <div class="settings-pills" id="sidebar-pos-pills">
+              <button class="settings-pill active" data-value="left">Left</button>
+              <button class="settings-pill" data-value="right">Right</button>
+              <button class="settings-pill" data-value="bottom">Bottom</button>
+            </div>
+          </div>
+          <div class="settings-group" style="margin-top:1rem">
+            <div class="settings-group-label">Sidebar width</div>
+            <div class="settings-option" data-setting="sidebar-wide">
+              <div><div class="settings-option-label">Always expanded</div><div class="settings-option-desc">Keep sidebar open instead of collapsed</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCESSIBILITY TAB -->
+  <div id="tab-accessibility" class="settings-tab-content" style="display:none">
+    <div class="grid-2">
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Visual</h3></div>
+        <div style="padding:1.25rem">
+          <div class="settings-group">
+            <div class="settings-option" data-a11y="highContrast">
+              <div><div class="settings-option-label">High contrast</div><div class="settings-option-desc">Increase color contrast for readability</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+            <div class="settings-option" data-a11y="dyslexia">
+              <div><div class="settings-option-label">Readable font</div><div class="settings-option-desc">Use Lexend, designed for readability</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+            <div class="settings-option" data-a11y="fontWeight">
+              <div><div class="settings-option-label">Bold text</div><div class="settings-option-desc">Make all text bold for better visibility</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+            <div class="settings-option" data-a11y="lineHeight">
+              <div><div class="settings-option-label">Increased line spacing</div><div class="settings-option-desc">Add more space between lines of text</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+            <div class="settings-option" data-a11y="letterSpacing">
+              <div><div class="settings-option-label">Letter spacing</div><div class="settings-option-desc">Add space between letters</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Motion &amp; Focus</h3></div>
+        <div style="padding:1.25rem">
+          <div class="settings-group">
+            <div class="settings-option" data-a11y="reduceMotion">
+              <div><div class="settings-option-label">Reduce motion</div><div class="settings-option-desc">Disable animations and transitions</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+            <div class="settings-option" data-a11y="superFocus">
+              <div><div class="settings-option-label">Focus mode</div><div class="settings-option-desc">Dim everything except the focused element</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+            <div class="settings-option" data-a11y="highlightLinks">
+              <div><div class="settings-option-label">Highlight links</div><div class="settings-option-desc">Make all links visually prominent</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+            <div class="settings-option" data-a11y="highlightTitles">
+              <div><div class="settings-option-label">Highlight titles</div><div class="settings-option-desc">Add background to heading elements</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:1.25rem">
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Color Filters</h3></div>
+        <div style="padding:1.25rem">
+          <div class="settings-group">
+            <div class="settings-option" data-a11y="monochrome">
+              <div><div class="settings-option-label">Monochrome</div><div class="settings-option-desc">Remove all color (grayscale)</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+            <div class="settings-option" data-a11y="lowSaturation">
+              <div><div class="settings-option-label">Low saturation</div><div class="settings-option-desc">Reduce color intensity by 50%</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tbl">
+        <div class="tbl-hdr"><h3>Tools</h3></div>
+        <div style="padding:1.25rem">
+          <div class="settings-group">
+            <div class="settings-option" data-a11y="readingGuide">
+              <div><div class="settings-option-label">Reading guide</div><div class="settings-option-desc">Show a horizontal line that follows your cursor</div></div>
+              <div class="settings-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+          </div>
+          <div class="settings-group" style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)">
+            <button class="btn btn-secondary btn-sm" id="settings-reset" style="width:100%;justify-content:center">Reset all accessibility settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HELP GUIDE TAB -->
+  <div id="tab-guide" class="settings-tab-content" style="display:none">
+    <div class="tbl">
+      <div class="tbl-hdr"><h3>Using Elysiae</h3></div>
+      <div style="padding:1.5rem">
+        <div class="guide-section">
+          <h4 style="font-size:.9375rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+            <span class="guide-num">1</span> What is Elysiae?
+          </h4>
+          <p style="font-size:.8125rem;color:var(--text2);line-height:1.7;padding-left:2rem">Elysiae is a hospital management system that helps you manage patients, doctors, appointments, wards, admissions, departments, billing, and medical records — all from one place.</p>
+        </div>
+        <div class="guide-section" style="margin-top:1.5rem">
+          <h4 style="font-size:.9375rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+            <span class="guide-num">2</span> Your Role
+          </h4>
+          <div style="padding-left:2rem">
+            <p style="font-size:.8125rem;color:var(--text2);line-height:1.7">What you can do depends on your assigned role. <strong style="color:var(--text)">Administrators</strong> have full access to all features. <strong style="color:var(--text)">Doctors</strong> can manage their schedules and view patients. <strong style="color:var(--text)">Patients</strong> can book appointments and view records. <strong style="color:var(--text)">Receptionists</strong> handle front-desk tasks like searching records and managing appointments. <strong style="color:var(--text)">Nurses</strong> assist with ward and admission operations.</p>
+          </div>
+        </div>
+        <div class="guide-section" style="margin-top:1.5rem">
+          <h4 style="font-size:.9375rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+            <span class="guide-num">3</span> Navigation
+          </h4>
+          <div style="padding-left:2rem">
+            <p style="font-size:.8125rem;color:var(--text2);line-height:1.7;margin-bottom:.5rem"><strong style="color:var(--text)">Sidebar</strong> — On desktop, hover over the left sidebar to see full labels. Click any item to go to that section.</p>
+            <p style="font-size:.8125rem;color:var(--text2);line-height:1.7;margin-bottom:.5rem"><strong style="color:var(--text)">Mobile</strong> — Tap the menu icon (three lines) at the top-left to open the sidebar. A bottom navigation bar also provides quick access to the most-used sections.</p>
+            <p style="font-size:.8125rem;color:var(--text2);line-height:1.7;margin-bottom:.5rem"><strong style="color:var(--text)">Keyboard shortcuts</strong> — Press <kbd style="background:var(--bg);padding:2px 6px;border-radius:4px;border:1px solid var(--border);font-size:.75rem">G</kbd> then a letter to jump to any section. Press <kbd style="background:var(--bg);padding:2px 6px;border-radius:4px;border:1px solid var(--border);font-size:.75rem">?</kbd> to see all shortcuts. See the Shortcuts tab for the full list.</p>
+          </div>
+        </div>
+        <div class="guide-section" style="margin-top:1.5rem">
+          <h4 style="font-size:.9375rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+            <span class="guide-num">4</span> Key Features
+          </h4>
+          <div style="padding-left:2rem">
+            <div class="module-card"><strong>Dashboard</strong> — Quick overview of hospital activity at a glance.</div>
+            <div class="module-card"><strong>Appointments</strong> — Schedule, view, and manage appointments. Filter by date, doctor, or patient.</div>
+            <div class="module-card"><strong>Patients</strong> — Search and manage patient records. View history and generate invoices.</div>
+            <div class="module-card"><strong>Doctors</strong> — Manage doctor profiles, departments, and schedules.</div>
+            <div class="module-card"><strong>EHR Records</strong> — View and manage electronic health records for patients.</div>
+            <div class="module-card"><strong>Wards &amp; Beds</strong> — Manage hospital wards and track bed availability.</div>
+            <div class="module-card"><strong>Admissions</strong> — Admit, discharge, and transfer patients between wards and beds.</div>
+            <div class="module-card"><strong>Departments</strong> — Organize and manage hospital departments.</div>
+            <div class="module-card"><strong>Billing</strong> — Track invoices and payments.</div>
+            <div class="module-card"><strong>Reports</strong> — Generate summary reports for hospital operations.</div>
+            <div class="module-card"><strong>Staff</strong> — Manage user accounts and assign roles.</div>
+          </div>
+        </div>
+        <div class="guide-section" style="margin-top:1.5rem">
+          <h4 style="font-size:.9375rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+            <span class="guide-num">5</span> Deleting Records
+          </h4>
+          <p style="font-size:.8125rem;color:var(--text2);line-height:1.7;padding-left:2rem">When you delete a patient, doctor, department, ward, bed, or user account, it is not permanently removed. Instead, it is hidden from lists and searches. This prevents accidental data loss and keeps related records intact. If you need to recover a deleted record, contact your system administrator.</p>
+        </div>
+        <div class="guide-section" style="margin-top:1.5rem">
+          <h4 style="font-size:.9375rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+            <span class="guide-num">6</span> Accessibility
+          </h4>
+          <p style="font-size:.8125rem;color:var(--text2);line-height:1.7;padding-left:2rem;margin-bottom:.5rem">Elysiae includes accessibility features to make the system easier to use. Access them from the floating button (bottom-left corner) or the Accessibility tab above:</p>
+          <ul style="font-size:.8125rem;color:var(--text2);padding-left:2rem;line-height:2">
+            <li>Adjust font size (4 levels)</li>
+            <li>High contrast mode for better visibility</li>
+            <li>Readable font option for dyslexia support</li>
+            <li>Bold text and increased spacing</li>
+            <li>Reduce motion if animations are distracting</li>
+            <li>Focus mode to highlight the active element</li>
+            <li>Reading guide line that follows your cursor</li>
+            <li>Color filters (grayscale, reduced saturation)</li>
+            <li>All settings are saved automatically</li>
+          </ul>
+        </div>
+        <div class="guide-section" style="margin-top:1.5rem">
+          <h4 style="font-size:.9375rem;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">
+            <span class="guide-num">7</span> Need Help?
+          </h4>
+          <p style="font-size:.8125rem;color:var(--text2);line-height:1.7;padding-left:2rem">If you encounter any issues or have questions, contact your system administrator or IT support team. They can assist with account issues, access permissions, and data recovery.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main><nav class="bottom-nav" id="bottom-nav">
+  <a href="../dashboard/dashboard.html" class="bottom-nav-item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></a>
+  <a href="../patients/patients.html" class="bottom-nav-item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Patients</span></a>
+  <a href="../appointments/appointments.html" class="bottom-nav-item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Appts</span></a>
+  <div style="position:relative">
+    <button class="bottom-nav-item" id="bottom-more-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg><span>More</span></button>
+    <div class="bottom-nav-more" id="bottom-more-menu">
+      <a href="../doctors/doctors.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Doctors</span></a>
+      <a href="../records/records.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span>Records</span></a>
+      <a href="../billing/billing.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span>Billing</span></a>
+      <a href="../reports/reports.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span><span>Reports</span></a>
+      <a href="../staff/staff.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Staff</span></a>
+      <a href="../wards/wards.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg></span><span>Wards</span></a>
+      <a href="../admissions/admissions.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><span>Admissions</span></a>
+      <a href="../departments/departments.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span><span>Departments</span></a>
+      <a href="../profile/profile.html" class="nav-item"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Profile</span></a>
+      <a href="../settings/settings.html" class="nav-item active"><span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Settings</span></a>
+    </div>
+  </div>
+</nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var tabs = document.querySelectorAll('#settings-tabs .tab-item');
+  var contents = document.querySelectorAll('.settings-tab-content');
+  var sb = document.getElementById('sidebar');
+  var themeSwitch = document.getElementById('theme-switch');
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      contents.forEach(function(c) { c.style.display = 'none'; });
+      tab.classList.add('active');
+      var target = document.getElementById('tab-' + tab.dataset.tab);
+      if (target) target.style.display = '';
+      if (tab.dataset.tab === 'display' && themeSwitch) {
+        var isDark = document.documentElement.classList.contains('dark');
+        themeSwitch.classList.toggle('on', isDark);
+        themeSwitch.setAttribute('aria-checked', isDark);
+      }
+    });
+  });
+
+  var posPills = document.getElementById('sidebar-pos-pills');
+  if (posPills) {
+    var saved = localStorage.getItem('elysiae-sidebar-pos') || 'left';
+    posPills.querySelectorAll('.settings-pill').forEach(function(p) {
+      p.classList.toggle('active', p.dataset.value === saved);
+    });
+    posPills.addEventListener('click', function(e) {
+      var pill = e.target.closest('.settings-pill');
+      if (!pill) return;
+      var pos = pill.dataset.value;
+      posPills.querySelectorAll('.settings-pill').forEach(function(p) { p.classList.remove('active'); });
+      pill.classList.add('active');
+      if (sb) {
+        ['left','right','bottom'].forEach(function(p) {
+          sb.classList.remove('pos-' + p);
+          document.body.classList.remove('sidebar-pos-' + p);
+        });
+        if (pos !== 'left') {
+          sb.classList.add('pos-' + pos);
+          document.body.classList.add('sidebar-pos-' + pos);
+        }
+      }
+      localStorage.setItem('elysiae-sidebar-pos', pos);
+    });
+  }
+
+  var wideToggle = document.querySelector('[data-setting="sidebar-wide"]');
+  if (wideToggle) {
+    var isWide = localStorage.getItem('elysiae-sidebar-wide') === 'true';
+    wideToggle.querySelector('.settings-toggle').classList.toggle('on', isWide);
+    if (isWide && sb) sb.classList.add('open');
+    wideToggle.addEventListener('click', function(e) {
+      var tog = wideToggle.querySelector('.settings-toggle');
+      var on = !tog.classList.contains('on');
+      tog.classList.toggle('on', on);
+      tog.setAttribute('aria-checked', on);
+      localStorage.setItem('elysiae-sidebar-wide', on);
+      if (sb) sb.classList.toggle('open', on);
+    });
+  }
+
+  var themeToggle = document.getElementById('display-theme-toggle');
+  if (themeToggle && themeSwitch) {
+    var isDark = document.documentElement.classList.contains('dark');
+    themeSwitch.classList.toggle('on', isDark);
+    themeSwitch.setAttribute('aria-checked', isDark);
+    themeToggle.addEventListener('click', function() {
+      document.documentElement.classList.add('theme-transitioning');
+      document.documentElement.classList.toggle('dark');
+      var dark = document.documentElement.classList.contains('dark');
+      themeSwitch.classList.toggle('on', dark);
+      themeSwitch.setAttribute('aria-checked', dark);
+      localStorage.setItem('elysiae-theme', dark ? 'dark' : 'light');
+      setTimeout(function() {
+        document.documentElement.classList.remove('theme-transitioning');
+      }, 400);
+    });
+  }
+});
+</script>
+</body>
+</html>

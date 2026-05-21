@@ -63,6 +63,9 @@ public class AppointmentService {
         }
         Doctor doctor = doctorRepository.findById(request.doctorId()).orElseThrow(
                 () -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
 
         Appointment appointment = Appointment.builder()
                 .patient(patient)
@@ -186,6 +189,9 @@ public class AppointmentService {
         if (schedule == null) {
             Doctor doctor = doctorRepository.findById(slotsRequest.doctorId())
                     .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+            if (doctor.getDeletedAt() != null) {
+                throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+            }
             DoctorSummary doctorSummary = doctorMapper.toSummary(doctor);
             return AppointmentSlotMapper.toResponse(doctorSummary, slotsRequest.date(), List.of());
         }
@@ -210,6 +216,9 @@ public class AppointmentService {
 
         Doctor doctor = doctorRepository.findById(slotsRequest.doctorId())
                 .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+        if (doctor.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.DOCTOR_NOT_FOUND);
+        }
         DoctorSummary doctorSummary = doctorMapper.toSummary(doctor);
 
         return AppointmentSlotMapper.toResponse(doctorSummary, slotsRequest.date(), availableSlots);

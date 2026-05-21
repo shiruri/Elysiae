@@ -4,6 +4,8 @@ import com.shiro.elysiae.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -56,4 +58,7 @@ public class Doctor {
 
     @Column(length = 20)
     private String phone;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 }

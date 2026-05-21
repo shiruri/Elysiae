@@ -14,14 +14,15 @@ import java.util.Optional;
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
-    @Query("SELECT d FROM Doctor d WHERE d.user.id = :userId")
+    @Query("SELECT d FROM Doctor d WHERE d.user.id = :userId AND d.deletedAt IS NULL")
     Optional<Doctor> findByUserId(@Param("userId") Long userId);
 
     @Query("""
         SELECT d
         FROM Doctor d
         LEFT JOIN d.department dep
-        WHERE (:doctorId IS NULL OR d.id = :doctorId)
+        WHERE d.deletedAt IS NULL
+        AND (:doctorId IS NULL OR d.id = :doctorId)
         AND (:departmentName IS NULL OR LOWER(dep.name) LIKE LOWER(CONCAT('%', :departmentName, '%')))
         AND (:specialization IS NULL OR LOWER(d.specialization) LIKE LOWER(CONCAT('%', :specialization, '%')))
     """)
@@ -31,12 +32,12 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
             @Param("specialization") String specialization,
             Pageable pageable
     );
-
+    boolean existsByLicenseNumberAndDeletedAtIsNull(String licenseNumber);
     @Query("""
     SELECT d
     FROM Doctor d
     WHERE d.department.id = :departmentId
+    AND d.deletedAt IS NULL
 """)
     List<Doctor> searchByDepartmentId(@Param("departmentId") Long departmentId);
-
 }

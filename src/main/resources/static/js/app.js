@@ -77,7 +77,7 @@
     highlightLinks: false, highlightTitles: false,
     readingGuide: false, bigCursor: false, superFocus: false,
     monochrome: false, darkContrast: false, lightContrast: false, lowSaturation: false,
-    hideImages: false, activeProfile: null
+    activeProfile: null
   };
   var a11ySettings = {};
 
@@ -103,7 +103,7 @@
     var html = document.documentElement;
     var toggleKeys = ['highContrast','reduceMotion','dyslexia','fontWeight','lineHeight','letterSpacing',
       'highlightLinks','highlightTitles','readingGuide','bigCursor','superFocus',
-      'monochrome','darkContrast','lightContrast','lowSaturation','hideImages'];
+      'monochrome','darkContrast','lightContrast','lowSaturation'];
     ['font-sm','font-lg','font-xl'].forEach(function (c) { html.classList.remove('a11y-' + c); });
     toggleKeys.forEach(function (k) {
       html.classList.toggle('a11y-' + camelToHyphen(k), !!a11ySettings[k]);
@@ -571,7 +571,6 @@
         '</div>' +
         '<div class="a11y-widget-section"><div class="a11y-widget-section-title">Tools</div>' +
           sTog('reduceMotion','Stop animations','Disable all animations') +
-          sTog('hideImages','Hide images','Text-only browsing') +
         '</div>' +
         '<button class="btn btn-secondary btn-sm a11y-widget-reset" id="widget-settings-reset">Reset all</button>' +
       '</div>';
@@ -664,5 +663,186 @@
   /* build widget on idle/ready */
   if (document.readyState === 'complete') buildWidget();
   else window.addEventListener('load', function () { setTimeout(buildWidget, 600); });
+
+  /* ── KEYBOARD SHORTCUTS ── */
+  var goToMode = false;
+  var goToTimer = null;
+  var goToIndicator = null;
+
+  function showGoToIndicator() {
+    if (!goToIndicator) {
+      goToIndicator = document.createElement('div');
+      goToIndicator.style.cssText = 'position:fixed;bottom:80px;right:20px;z-index:9999;background:var(--primary);color:#fff;padding:6px 12px;border-radius:8px;font-size:.75rem;font-weight:600;box-shadow:0 4px 14px rgba(13,148,136,.35);transition:opacity .2s';
+      goToIndicator.textContent = 'Go to: press a letter';
+      document.body.appendChild(goToIndicator);
+    }
+    goToIndicator.style.opacity = '1';
+  }
+
+  function hideGoToIndicator() {
+    if (goToIndicator) goToIndicator.style.opacity = '0';
+  }
+
+  var shortcutRoutes = {
+    d: '../dashboard/dashboard.html',
+    p: '../patients/patients.html',
+    a: '../appointments/appointments.html',
+    o: '../doctors/doctors.html',
+    r: '../records/records.html',
+    w: '../wards/wards.html',
+    m: '../admissions/admissions.html',
+    e: '../departments/departments.html',
+    b: '../billing/billing.html',
+    t: '../reports/reports.html',
+    s: '../staff/staff.html',
+    g: '../settings/settings.html'
+  };
+
+  function isTyping() {
+    var el = document.activeElement;
+    if (!el) return false;
+    var tag = el.tagName.toLowerCase();
+    return tag === 'input' || tag === 'textarea' || tag === 'select' || el.isContentEditable;
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (isTyping()) return;
+
+    /* Ctrl shortcuts */
+    if (e.ctrlKey || e.metaKey) {
+      if (e.key === 'b' || e.key === 'B') {
+        e.preventDefault();
+        sb.classList.toggle('open');
+        if (ov) ov.classList.toggle('active');
+        return;
+      }
+      if (e.key === 'd' || e.key === 'D') {
+        e.preventDefault();
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('elysiae-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        return;
+      }
+      if (e.key === 'a' || e.key === 'A') {
+        if (e.shiftKey) {
+          e.preventDefault();
+          var wBtn = document.querySelector('.a11y-widget-btn');
+          if (wBtn) wBtn.click();
+          return;
+        }
+      }
+      if (e.key === 'r' || e.key === 'R') {
+        if (e.shiftKey) {
+          e.preventDefault();
+          a11ySettings.readingGuide = !a11ySettings.readingGuide;
+          saveA11y();
+          applyA11y();
+          return;
+        }
+      }
+      if (e.key === '=' || e.key === '+') {
+        e.preventDefault();
+        var sizes = ['sm','md','lg','xl'];
+        var idx = sizes.indexOf(a11ySettings.font || 'md');
+        if (idx < sizes.length - 1) {
+          a11ySettings.font = sizes[idx + 1];
+          saveA11y();
+          applyA11y();
+        }
+        return;
+      }
+      if (e.key === '-') {
+        e.preventDefault();
+        var sizes = ['sm','md','lg','xl'];
+        var idx = sizes.indexOf(a11ySettings.font || 'md');
+        if (idx > 0) {
+          a11ySettings.font = sizes[idx - 1];
+          saveA11y();
+          applyA11y();
+        }
+        return;
+      }
+      if (e.key === '0') {
+        e.preventDefault();
+        a11ySettings.font = 'md';
+        saveA11y();
+        applyA11y();
+        return;
+      }
+      return;
+    }
+
+    /* ? shortcut */
+    if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+      e.preventDefault();
+      var cheatSheet = document.getElementById('shortcut-cheatsheet');
+      if (cheatSheet) {
+        cheatSheet.remove();
+      } else {
+        cheatSheet = document.createElement('div');
+        cheatSheet.id = 'shortcut-cheatsheet';
+        cheatSheet.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:2rem';
+        cheatSheet.innerHTML = '<div style="background:var(--surface);border-radius:14px;max-width:520px;width:100%;max-height:80vh;overflow-y:auto;padding:1.5rem;box-shadow:var(--shadow-lg)">' +
+          '<h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between">Keyboard Shortcuts <button onclick="document.getElementById(\'shortcut-cheatsheet\').remove()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:1.25rem">&times;</button></h3>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">' +
+          '<div><div style="font-size:.6875rem;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:.375rem">Go-To (G + letter)</div>' +
+          Object.entries(shortcutRoutes).map(function(kv){return '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.75rem"><span>'+kv[1].split('/').pop().replace('.html','')+'</span><kbd style="background:var(--bg);padding:1px 5px;border-radius:3px;border:1px solid var(--border);font-size:.6875rem">G '+kv[0].toUpperCase()+'</kbd></div>'}).join('') +
+          '</div><div><div style="font-size:.6875rem;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:.375rem">Actions (Ctrl + key)</div>' +
+          '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.75rem"><span>Toggle sidebar</span><kbd style="background:var(--bg);padding:1px 5px;border-radius:3px;border:1px solid var(--border);font-size:.6875rem">Ctrl B</kbd></div>' +
+          '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.75rem"><span>Dark mode</span><kbd style="background:var(--bg);padding:1px 5px;border-radius:3px;border:1px solid var(--border);font-size:.6875rem">Ctrl D</kbd></div>' +
+          '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.75rem"><span>Accessibility</span><kbd style="background:var(--bg);padding:1px 5px;border-radius:3px;border:1px solid var(--border);font-size:.6875rem">Ctrl Shift A</kbd></div>' +
+          '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.75rem"><span>Reading guide</span><kbd style="background:var(--bg);padding:1px 5px;border-radius:3px;border:1px solid var(--border);font-size:.6875rem">Ctrl Shift R</kbd></div>' +
+          '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.75rem"><span>Bigger font</span><kbd style="background:var(--bg);padding:1px 5px;border-radius:3px;border:1px solid var(--border);font-size:.6875rem">Ctrl +</kbd></div>' +
+          '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.75rem"><span>Smaller font</span><kbd style="background:var(--bg);padding:1px 5px;border-radius:3px;border:1px solid var(--border);font-size:.6875rem">Ctrl -</kbd></div>' +
+          '</div></div>' +
+          '<p style="font-size:.6875rem;color:var(--text3);margin-top:.75rem">Press Escape or click X to close</p></div>';
+        cheatSheet.addEventListener('click', function(e) {
+          if (e.target === cheatSheet) cheatSheet.remove();
+        });
+        document.body.appendChild(cheatSheet);
+      }
+      return;
+    }
+
+    /* Escape closes cheatsheet / disables superFocus */
+    if (e.key === 'Escape') {
+      var cs = document.getElementById('shortcut-cheatsheet');
+      if (cs) { cs.remove(); return; }
+      if (a11ySettings.superFocus) {
+        e.preventDefault();
+        a11ySettings.superFocus = false;
+        saveA11y();
+        applyA11y();
+        window.showToast('Focus mode disabled', 'info');
+        return;
+      }
+      if (goToMode) { goToMode = false; clearTimeout(goToTimer); hideGoToIndicator(); return; }
+    }
+
+    /* Go-To mode */
+    if (goToMode) {
+      var route = shortcutRoutes[e.key.toLowerCase()];
+      if (route) {
+        window.location.href = route;
+        goToMode = false;
+        clearTimeout(goToTimer);
+        hideGoToIndicator();
+        return;
+      }
+      goToMode = false;
+      clearTimeout(goToTimer);
+      hideGoToIndicator();
+      return;
+    }
+
+    if (e.key === 'g' || e.key === 'G') {
+      e.preventDefault();
+      goToMode = true;
+      showGoToIndicator();
+      goToTimer = setTimeout(function () {
+        goToMode = false;
+        hideGoToIndicator();
+      }, 1500);
+    }
+  });
 
 })();

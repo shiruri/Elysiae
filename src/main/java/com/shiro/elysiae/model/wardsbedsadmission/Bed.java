@@ -5,6 +5,8 @@ import com.shiro.elysiae.model.enums.BedStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(
         name = "beds",
@@ -30,5 +32,8 @@ public class Bed {
     @Column(name = "status", columnDefinition = "ENUM('AVAILABLE','OCCUPIED','MAINTENANCE')")
     @Builder.Default
     private BedStatus status = BedStatus.AVAILABLE;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 }
 

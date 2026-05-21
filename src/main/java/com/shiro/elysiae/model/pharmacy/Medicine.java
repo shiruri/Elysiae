@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(
@@ -46,5 +47,8 @@ public class Medicine {
 
     @Column(name = "expiry_date")
     private LocalDate expiryDate;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 }
 
