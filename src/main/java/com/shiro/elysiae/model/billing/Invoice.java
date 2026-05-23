@@ -10,7 +10,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(
@@ -55,12 +57,11 @@ public class Invoice {
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Invoice.java — already has this pattern from your other models
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<InvoiceItem> items = new ArrayList<>();
+    private Set<InvoiceItem> items = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Payment> payments = new ArrayList<>();
+    private Set<Payment> payments = new LinkedHashSet<>();
 }

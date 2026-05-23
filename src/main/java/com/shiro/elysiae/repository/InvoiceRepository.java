@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -67,5 +69,47 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
             @Param("patientId") Long patientId,
             @Param("status") InvoiceStatus status,
             Pageable pageable
+    );
+
+    @Query("""
+    SELECT COALESCE(SUM(i.paidAmount), 0) FROM Invoice i
+    WHERE i.createdAt >= :startOfDay
+    AND   i.createdAt <  :endOfDay
+""")
+    BigDecimal revenueToday(
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay")   LocalDateTime endOfDay
+    );
+
+    @Query("""
+    SELECT COALESCE(SUM(i.paidAmount), 0) FROM Invoice i
+    WHERE i.createdAt >= :from
+    AND   i.createdAt <= :to
+""")
+    BigDecimal totalRevenueBetween(
+            @Param("from") LocalDateTime from,
+            @Param("to")   LocalDateTime to
+    );
+
+    @Query("""
+    SELECT COALESCE(SUM(i.totalAmount), 0) FROM Invoice i
+    WHERE i.createdAt >= :from
+    AND   i.createdAt <= :to
+""")
+    BigDecimal totalBilledBetween(
+            @Param("from") LocalDateTime from,
+            @Param("to")   LocalDateTime to
+    );
+
+    @Query("""
+    SELECT COUNT(i) FROM Invoice i
+    WHERE i.createdAt >= :from
+    AND   i.createdAt <= :to
+    AND   i.status = :status
+""")
+    long countByStatusBetween(
+            @Param("from")   LocalDateTime from,
+            @Param("to") LocalDateTime to,
+            @Param("status") InvoiceStatus status
     );
 }

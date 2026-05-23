@@ -5,8 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Billing - Elysiae</title>
 <script src="../js/toggles.js"></script>
+<script src="../js/api.js" defer></script>
+<script src="../js/auth.js" defer></script>
 <script src="../js/app.js" defer></script>
 <script src="../js/modals.js" defer></script>
+<script src="../js/rbac.js" defer></script>
+<script src="../js/modules.js" defer></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
@@ -90,7 +94,7 @@ tailwind.config = {
   <div class="page-hdr">
     <div><h1>Billing</h1><p>Invoicing and payment processing</p></div>
     <div class="flex gap-2">
-      <button class="btn btn-primary btn-sm" onclick="showToast('Invoice created','success')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Invoice</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-invoice-create')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Invoice</button>
     </div>
   </div>
   <div class="stat-row anim-stagger">
@@ -103,7 +107,7 @@ tailwind.config = {
     <div class="tbl-hdr"><h3>Invoices</h3></div>
     <table>
       <thead><tr><th>Patient</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Due Date</th><th class="text-right">Action</th></tr></thead>
-      <tbody><tr><td colspan="7" class="text-center py-16"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><p>No invoices yet</p><div class="empty-action"><button class="btn btn-primary btn-sm" onclick="showToast('Creating...','success')">Create invoice</button></div></div></td></tr></tbody>
+      <tbody><tr><td colspan="7" class="text-center py-16"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><p>No invoices yet</p><div class="empty-action"><button class="btn btn-primary btn-sm" onclick="openModal('modal-invoice-create')">Create invoice</button></div></div></td></tr></tbody>
     </table>
   </div>
 </main><nav class="bottom-nav" id="bottom-nav">

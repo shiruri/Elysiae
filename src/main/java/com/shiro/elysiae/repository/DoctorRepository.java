@@ -13,7 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
-
+    @Query("SELECT COUNT(d) FROM Doctor d WHERE d.deletedAt IS NULL")
+    long countActive();
     @Query("SELECT d FROM Doctor d WHERE d.user.id = :userId AND d.deletedAt IS NULL")
     Optional<Doctor> findByUserId(@Param("userId") Long userId);
 

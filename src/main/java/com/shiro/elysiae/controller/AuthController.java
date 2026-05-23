@@ -31,14 +31,13 @@ public class AuthController {
     public ResponseEntity<UserResponse> me() {
         return ResponseEntity.ok().body(authService.getCurrentUser());
     }
-
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/register")
     public ResponseEntity<UserCreationResponse> registerUser(@Valid @RequestBody UserCreateRequest request) {
         return ResponseEntity.ok().body(authService.registerUser(request));
 
     }
-
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping("/change-password/{id}")
     public ResponseEntity<UserResponse> changePassword(@Valid @RequestBody UserChangePasswordRequest request,
                                                        @PathVariable long id) {
@@ -62,6 +61,12 @@ public class AuthController {
     public ResponseEntity<UserResponse> updateByUserId(@PathVariable long id
             ,@Valid @RequestBody UserUpdateRequest request) {
         return ResponseEntity.ok().body(authService.updateUser(id,request));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/logout/{id}")
+    public ResponseEntity<String> logoutUser(@PathVariable long id) {
+        return ResponseEntity.ok().body(authService.logoutUser(id));
     }
 
 }

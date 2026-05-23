@@ -69,7 +69,7 @@ public class PharmacyController {
     }
 
     @PreAuthorize("hasAnyRole('PHARMACIST','ADMIN','DOCTOR')")
-    @PostMapping("/dispense")
+    @GetMapping("/dispense-logs")
     public ResponseEntity<Page<DispenseLogSummary>> getDispenseLogs(Pageable pageable) {
         return ResponseEntity.ok().body(pharmacyService.getDispenseLogs(pageable));
     }

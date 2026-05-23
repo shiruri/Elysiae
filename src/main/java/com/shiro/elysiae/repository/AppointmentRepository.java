@@ -99,6 +99,16 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
             @Param("from") LocalDateTime from,
             Pageable pageable
     );
+
+    @Query("""
+    SELECT COUNT(a) FROM Appointment a
+    WHERE a.appointmentDateTime >= :startOfDay
+    AND   a.appointmentDateTime <  :endOfDay
+""")
+    long countAppointmentsToday(
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay")   LocalDateTime endOfDay
+    );
 }
 
 

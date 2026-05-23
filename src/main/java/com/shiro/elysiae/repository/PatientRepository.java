@@ -13,7 +13,8 @@ import org.springframework.stereotype.Repository;
 public interface PatientRepository extends JpaRepository<Patient,Long> {
     @Query("SELECT p FROM Patient p WHERE p.user.id = :userId AND p.deletedAt IS NULL")
     java.util.Optional<Patient> findByUser_Id(@Param("userId") Long userId);
-
+    @Query("SELECT COUNT(p) FROM Patient p WHERE p.deletedAt IS NULL")
+    long countActive();
     @Query("""
             SELECT p FROM Patient p
             WHERE p.deletedAt IS NULL

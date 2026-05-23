@@ -71,7 +71,7 @@ public class BillingController {
         return ResponseEntity.ok().body(billingService.getPaymentsFromInvoice(id,pageable));
     }
     @PreAuthorize("hasAnyRole('ADMIN','CASHIER')")
-    @GetMapping("/{id}/payments")
+    @GetMapping("/{id}/payment-detail")
     public ResponseEntity<PaymentDetails> getPaymentDetails(@PathVariable long id) {
         return ResponseEntity.ok().body(billingService.getPaymentDetails(id));
     }

@@ -1,0 +1,62 @@
+SOFT DELETE AUTH GUARDS PLAN
+=============================
+Entities with deletedAt: User, Patient, Doctor, Department, Medicine, Ward, Bed
+
+GOAL
+----
+For all 7 entities + their referencing services, ensure:
+  - Fetch/query  -> WHERE deleted_at IS NULL (never return deleted records)
+  - Insert       -> Check unique fields against non-deleted records only
+  - Update       -> Reject if the record is soft-deleted
+  - Delete       -> Set deleted_at = now(), don't hard-delete
+  - Reference    -> Verify referenced entity is not soft-deleted before creating/updating
+  - Login        -> Soft-deleted users cannot authenticate
+
+
+PHASE 1: Add deletedAt checks in referencing services
+------------------------------------------------------
+These services fetch Patient, Doctor, etc. but NEVER check if referenced entity is soft-deleted:
+
+  LabService.makeRequest()              -> after findById on Patient, Doctor
+  RecordsService.createMedicalRecord()  -> after findById on Patient, Doctor
+  RecordsService.updateMedicalRecord()  -> after finding the record
+  RecordsService.addPrescription()      -> after finding the MedicalRecord
+  VitalsService.logVitals()             -> after findById on Patient
+  BillingService.generateInvoice()      -> after findById on Patient
+  AppointmentService.getAppointment()   -> check associated Patient, Doctor
+  AppointmentService.updateAppointment()-> check associated Patient, Doctor
+  ReceiptService.reprintCredentialSlip()-> after findById on Doctor
+
+Fix: After each findById() on a soft-delete entity, add:
+  if (entity.getDeletedAt() != null) throw new AppException(ErrorCode.ENTITY_NOT_FOUND);
+
+
+PHASE 2: Fix missing / incomplete duplicate checks on create
+-------------------------------------------------------------
+  WardService.registerWard()            -> has NO duplicate check at all
+                                         -> add existsByNameIgnoreCaseAndDeletedAtIsNull()
+
+  AuthService.registerUser()            -> findByUsername filters deleted IS NULL
+                                         -> Check if username already exists regardless of deleted status?
+                                         -> Decision needed: allow reuse of deleted username?
+
+  DoctorService.registerDoctor()        -> existsByLicenseNumberAndDeletedAtIsNull
+                                         -> Same question: allow reuse of deleted license?
+
+  DepartmentService.registerDepartment()-> existsByNameIgnoreCaseAndDeletedAtIsNull
+                                         -> Same question
+
+  PharmacyService.addMedicine()         -> existsByNameIgnoreCaseAndDeletedAtIsNull
+                                         -> Same question
+
+
+PHASE 3: Add delete method for Medicine
+----------------------------------------
+  PharmacyService.deleteMedicine(long id) -> set medicine.setDeletedAt(LocalDateTime.now())
+  PharmacyController.deleteMedicine()     -> @PreAuthorize("hasRole('ADMIN')")
+
+
+PHASE 4: Verify @PreAuthorize on all controller methods
+--------------------------------------------------------
+  Ensure every write operation (POST/PATCH/DELETE) on soft-delete entities
+  has proper role restrictions (at minimum hasRole('ADMIN') for deletes).

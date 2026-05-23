@@ -616,6 +616,12 @@ body.sidebar-pos-transitioning .main-wrap{transition:none!important}
 .empty-state .empty-action{margin-top:1rem}
 
 /* login page */
+.login-bg{
+  background:linear-gradient(135deg,#f0fdfa 0%,#f8fafc 50%,#f0fdfa 100%)
+}
+.dark .login-bg{
+  background:linear-gradient(135deg,#0b1120 0%,#0f172a 50%,#0b1120 100%)
+}
 .login-page{
   min-height:100vh;display:flex;align-items:center;
   justify-content:center;padding:2rem 1.5rem

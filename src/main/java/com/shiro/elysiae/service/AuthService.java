@@ -72,16 +72,21 @@ public class AuthService {
     public UserCreationResponse registerUser(UserCreateRequest request) {
         Authentication auth = getAuthentication();
         if(auth == null) {
-            throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
+
         String tempPassword = request.username() + "-" + (1000 + new Random().nextInt(9000));
         String password =  passwordEncoder.encode(tempPassword);
         User user = User.builder()
                 .username(request.username())
                 .password(password)
                 .role(request.role())
+                .isActive(false)
                 .build();
 
+        if (!userRepository.findByUsername(request.username()).isEmpty()) {
+            throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
+        }
         User saved = userRepository.save(user);
 
         auditService.log(String.valueOf(AuditAction.USER_CREATED),user.getRole().name(),user.getId());
@@ -127,6 +132,7 @@ public class AuthService {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
         user.setDeletedAt(LocalDateTime.now());
+
         userRepository.save(user);
         auditService.log(AuditAction.USER_DELETED.name(), "User", id);
     }
@@ -183,7 +189,17 @@ public class AuthService {
             throw new AppException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
     }
+    public String logoutUser(long id) {
 
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (user.getDeletedAt() != null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        user.setIsActive(false);
+        userRepository.save(user);
+        return "Logged out Successfully";
+    }
 
 
     private Authentication getAuthentication() {

@@ -11,8 +11,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface WardRepository extends JpaRepository<Ward, Long> {
+    @Query("""
+    SELECT w FROM Ward w
+    LEFT JOIN FETCH w.beds b
+    WHERE w.deletedAt IS NULL
+""")
+    List<Ward> findAllActiveWithBeds();
 
     @Query("""
     SELECT new com.shiro.elysiae.dto.response.wardsandbeds.WardsSummary(
@@ -39,5 +47,4 @@ public interface WardRepository extends JpaRepository<Ward, Long> {
             Pageable pageable
     );
 
-    Patient findByPatientId(@Param("patient_id")long patientId);
 }

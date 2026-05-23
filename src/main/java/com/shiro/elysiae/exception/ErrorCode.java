@@ -5,6 +5,10 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    USER_ALREADY_EXISTS(
+            HttpStatus.CONFLICT,
+            "Username already exists"
+    ),
     SERVICE_RATE_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "Service Rate Not Found"

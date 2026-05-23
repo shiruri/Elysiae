@@ -6,25 +6,41 @@
   var sb = document.getElementById('sidebar');
   var ov = document.getElementById('sidebar-overlay');
   var tog = document.getElementById('sidebar-toggle');
-  /* ── sidebar toggle (mobile) ── */
+  /* ── sidebar toggle ── */
+  function closeSidebar() {
+    sb.classList.remove('open');
+    if (ov) ov.classList.remove('active');
+    if (sb.dataset.wasBottom === '1') {
+      sb.classList.add('pos-bottom');
+      body.classList.add('sidebar-pos-bottom');
+      sb.removeAttribute('data-wasBottom');
+    }
+  }
+
+  function openSidebar() {
+    if (window.innerWidth <= 768 && sb.classList.contains('pos-bottom')) {
+      sb.classList.remove('pos-bottom');
+      body.classList.remove('sidebar-pos-bottom');
+      sb.dataset.wasBottom = '1';
+    }
+    sb.classList.add('open');
+    if (ov) ov.classList.add('active');
+  }
+
   if (tog && sb) {
     tog.addEventListener('click', function () {
-      sb.classList.toggle('open');
-      if (ov) ov.classList.toggle('active');
+      if (sb.classList.contains('open')) { closeSidebar(); return; }
+      openSidebar();
     });
   }
   if (ov && sb) {
-    ov.addEventListener('click', function () {
-      sb.classList.remove('open');
-      ov.classList.remove('active');
-    });
+    ov.addEventListener('click', closeSidebar);
   }
 
   /* ── close sidebar on Escape ── */
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && sb && sb.classList.contains('open')) {
-      sb.classList.remove('open');
-      if (ov) ov.classList.remove('active');
+      closeSidebar();
     }
   });
 
@@ -53,16 +69,16 @@
       error: '<svg class="toast-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
       info: '<svg class="toast-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
     };
-    t.innerHTML = (icons[type] || icons.info) + '<span>' + message + '</span>';
+    t.innerHTML = (icons[type] || icons.info);
+    var msgSpan = document.createElement('span');
+    msgSpan.textContent = message;
+    t.appendChild(msgSpan);
     ctn.appendChild(t);
     setTimeout(function () {
       t.classList.add('hiding');
       setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 250);
     }, 3500);
   };
-
-  /* ── demo toast ── */
-  setTimeout(function () { window.showToast('Page loaded successfully', 'success'); }, 600);
 
   /* ── confirm helper ── */
   window.confirmAction = function (msg, fn) {
@@ -458,8 +474,7 @@
     if (swipeIndicator) swipeIndicator.classList.remove('show');
     var x = e.changedTouches[0].clientX;
     if (x > 80) {
-      sb.classList.add('open');
-      if (ov) ov.classList.add('active');
+      openSidebar();
     }
     swiping = false;
   }, { passive: true });
@@ -712,8 +727,8 @@
     if (e.ctrlKey || e.metaKey) {
       if (e.key === 'b' || e.key === 'B') {
         e.preventDefault();
-        sb.classList.toggle('open');
-        if (ov) ov.classList.toggle('active');
+        if (sb.classList.contains('open')) { closeSidebar(); return; }
+        openSidebar();
         return;
       }
       if (e.key === 'd' || e.key === 'D') {

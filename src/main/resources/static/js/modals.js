@@ -68,10 +68,32 @@
   var FTR = '<button class="btn btn-outline btn-sm" onclick="closeModal(this.closest(\'.modal-overlay\').id)">Cancel</button>'
           + '<button class="btn btn-primary btn-sm" onclick="handleModalSubmit(this.closest(\'.modal-overlay\').id)">Submit</button>';
 
-  /* ---------- picker data (populated later) ---------- */
+  /* ---------- picker data (fetched from API) ---------- */
   var PIC_DATA = {};
   var _pickerField = null;
   var _pickerType = null;
+  var _pickerLoading = false;
+
+  var PICKER_SOURCES = {
+    patient: { search: 'POST', path: '/api/patients/get-patients', body: {page:0,size:50},
+      map: function(r){ return (r.content||r).map(function(i){ return {id:i.id,name:(i.firstName||'')+' '+(i.lastName||''),detail:'DOB: '+(i.dateOfBirth||'')}; }); }},
+    doctor: { search: 'POST', path: '/api/doctor', body: {page:0,size:50},
+      map: function(r){ return (r.content||r).map(function(i){ return {id:i.id,name:'Dr. '+(i.firstName||'')+' '+(i.lastName||''),detail:(i.specialization||'')+' | '+(i.departmentName||'')}; }); }},
+    department: { search: 'GET', path: '/api/department', body: null,
+      map: function(r){ return (r.content||r).map(function(i){ return {id:i.id,name:i.name||'',detail:'Floor: '+(i.floor||'')}; }); }},
+    ward: { search: 'POST', path: '/api/wards/search', body: {page:0,size:50},
+      map: function(r){ return (r.content||r).map(function(i){ return {id:i.id,name:i.name||'',detail:(i.type||'')+' - Floor '+(i.floor||'')}; }); }},
+    bed: { search: 'GET', path: '/api/wards/beds/0', body: null,
+      map: function(r){ return (r.content||r).map(function(i){ return {id:i.id,name:'Bed '+(i.bedNumber||''),detail:(i.wardName||'')+' ['+(i.status||'')+']'}; }); }},
+    appointment: { search: 'POST', path: '/api/appointments', body: {page:0,size:50},
+      map: function(r){ return (r.content||r).map(function(i){ return {id:i.id,name:'Appt #'+i.id,detail:(i.patientName||'')+' @ '+(i.appointmentDateTime||'')}; }); }},
+    lab: { search: 'POST', path: '/api/lab/request/search', body: {page:0,size:50},
+      map: function(r){ return (r.content||r).map(function(i){ return {id:i.id,name:'Lab #'+i.id,detail:(i.testType||'')+' - '+(i.patientName||'')}; }); }},
+    record: { search: 'GET', path: '/api/records', body: null,
+      map: function(r){ return (r.content||[]).map(function(i){ return {id:i.id,name:'Record #'+i.id,detail:(i.diagnosis||'')+' - '+(i.patientName||'')}; }); }},
+    admission: { search: 'POST', path: '/api/admission/search', body: {page:0,size:50},
+      map: function(r){ return (r.content||[]).map(function(i){ return {id:i.id,name:'Adm #'+i.id,detail:(i.patientName||'')+' ['+(i.status||'')+']'}; }); }}
+  };
 
   function pickerHTML(){
     return '<div class="picker-overlay" id="picker-overlay" onclick="if(event.target===this)closePicker()">'
@@ -330,6 +352,14 @@
         + select('uu-role','Role',[{v:'',l:'Select...'},{v:'ADMIN',l:'Admin'},{v:'DOCTOR',l:'Doctor'},{v:'NURSE',l:'Nurse'},{v:'PATIENT',l:'Patient'},{v:'RECEPTIONIST',l:'Receptionist'},{v:'PHARMACIST',l:'Pharmacist'},{v:'LAB_TECH',l:'Lab Tech'},{v:'CASHIER',l:'Cashier'}])),
       FTR],
 
+    /* INVOICE — Create (InvoiceCreateRequest) */
+    ['modal-invoice-create', 'Create Invoice',
+      fieldset('Invoice Details',
+        pickerInput('inv-patientId','Patient ID','patient','required min="1" placeholder="1"')
+        + input('inv-admissionId','Admission ID (optional)','number','min="1" placeholder="1"')
+        + input('inv-dueDate','Due Date','date','required')),
+      FTR],
+
     /* USER — Change Password (UserChangePasswordRequest) */
     ['modal-user-password', 'Change Password',
       fieldset('Password',
@@ -371,7 +401,33 @@
     init();
   }
 
-  /* ---------- global API ---------- */
+  /* ---------- modal-to-API mapping ---------- */
+  var MODAL_API = {
+    'modal-patient-create':     { m:'POST',  path:'/api/patients' },
+    'modal-patient-update':     { m:'PATCH', path:'/api/patients/{id}' },
+    'modal-doctor-create':      { m:'POST',  path:'/api/doctor/register' },
+    'modal-doctor-update':      { m:'PATCH', path:'/api/doctor/update/{id}' },
+    'modal-doctor-schedule':    { m:'PATCH', path:'/api/doctor/update/{id}/schedule' },
+    'modal-dept-create':        { m:'POST',  path:'/api/department/register' },
+    'modal-dept-update':        { m:'PATCH', path:'/api/department' },
+    'modal-ward-create':        { m:'POST',  path:'/api/wards/register/ward' },
+    'modal-bed-create':         { m:'POST',  path:'/api/wards/add/bed' },
+    'modal-admission-create':   { m:'POST',  path:'/api/admission/ward/admissions' },
+    'modal-admission-transfer': { m:'PATCH', path:'/api/admission/transfer' },
+    'modal-appt-create':        { m:'POST',  path:'/api/appointments/create' },
+    'modal-appt-update':        { m:'PATCH', path:'/api/appointments/{id}' },
+    'modal-lab-create':         { m:'POST',  path:'/api/lab/request' },
+    'modal-lab-result':         { m:'POST',  path:'/api/lab/result' },
+    'modal-vitals-create':      { m:'POST',  path:'/api/vitals' },
+    'modal-record-create':      { m:'POST',  path:'/api/records/create' },
+    'modal-record-update':      { m:'PATCH', path:'/api/records' },
+    'modal-prescription-create':{ m:'POST',  path:'/api/records/prescription' },
+    'modal-invoice-create':     { m:'POST',  path:'/api/billing/generate/invoice' },
+    'modal-user-create':        { m:'POST',  path:'/api/auth/register' },
+    'modal-user-update':        { m:'PATCH', path:'/api/auth/update/{id}' },
+    'modal-user-password':      { m:'PATCH', path:'/api/auth/change-password/{id}' }
+  };
+
   window.openModal = function(id){
     var el = document.getElementById(id);
     if(el){ el.classList.add('active'); document.body.style.overflow='hidden'; }
@@ -384,15 +440,18 @@
   window.handleModalSubmit = function(id){
     var overlay = document.getElementById(id);
     if(!overlay) return;
+    var apiDef = MODAL_API[id];
+    if(!apiDef){
+      showToast('No API endpoint configured for this form', 'error');
+      return;
+    }
 
-    /* Collect all form fields */
     var fields = {};
     var inputs = overlay.querySelectorAll('input, select, textarea');
     inputs.forEach(function(inp){
       if(inp.id){
-        var key = inp.id.replace(/^[a-z]+-/, ''); /* strip prefix */
+        var key = inp.id.replace(/^[a-z]+-/, '');
         var val = inp.value;
-        /* type coercion */
         if(inp.type === 'number' && val !== '') val = Number(val);
         else if(inp.type === 'datetime-local' && val !== '') val = val;
         else if(val === '') val = null;
@@ -402,12 +461,66 @@
       }
     });
 
-    console.log('[Modal Submit]', id, JSON.stringify(fields, null, 2));
-    showToast('Form submitted (check console for payload)', 'success');
-    closeModal(id);
+    var requestId = fields.id || null;
+    var path = apiDef.path;
+    if(requestId && path.indexOf('{id}') !== -1){
+      path = path.replace('{id}', requestId);
+      delete fields.id;
+    } else if(path.indexOf('{id}') !== -1){
+      showToast('An ID is required for this operation', 'error');
+      return;
+    }
+
+    var method = apiDef.m;
+    var apiCall;
+    if(method === 'POST') apiCall = API.post(path, fields);
+    else if(method === 'PATCH') apiCall = API.patch(path, fields);
+    else { showToast('Unsupported method', 'error'); return; }
+
+    var btn = overlay.querySelector('.modal-ftr .btn-primary');
+    if(btn){ btn.disabled = true; btn.textContent = 'Saving...'; }
+
+    apiCall.then(function(result){
+      showToast('Operation completed successfully', 'success');
+      closeModal(id);
+      if(typeof window.onModalSuccess === 'function'){
+        window.onModalSuccess(id, result);
+      }
+    }).catch(function(err){
+      showToast(err.message || 'Operation failed', 'error');
+      if(btn){ btn.disabled = false; btn.textContent = 'Submit'; }
+    });
   };
 
   /* ---------- picker API ---------- */
+  function loadPickerData(type, query){
+    var src = PICKER_SOURCES[type];
+    if(!src) return;
+    _pickerLoading = true;
+    var list = document.getElementById('picker-list');
+    if(list) list.innerHTML = '<div class="picker-empty"><div class="loader-spin" style="margin:0 auto"></div><p>Loading...</p></div>';
+
+    var apiCall;
+    if(src.search === 'GET'){
+      var qPath = src.path + (query ? '?keyword='+encodeURIComponent(query) : '');
+      apiCall = API.get(qPath);
+    } else {
+      var body = JSON.parse(JSON.stringify(src.body || {}));
+      if(query) body.keyword = query;
+      apiCall = src.search === 'POST' ? API.post(src.path, body) : API.get(src.path);
+    }
+
+    apiCall.then(function(data){
+      PIC_DATA[type] = src.map(data);
+      _pickerLoading = false;
+      renderPickerItems(type, query || '');
+    }).catch(function(){
+      _pickerLoading = false;
+      var list = document.getElementById('picker-list');
+      if(list) list.innerHTML = '<div class="picker-empty"><p>Failed to load data</p></div>';
+    });
+  }
+
   window.openPicker = function(fieldId, type){
     _pickerField = fieldId;
     _pickerType = type;
@@ -416,7 +529,7 @@
     document.getElementById('picker-search-input').value = '';
     document.getElementById('picker-overlay').classList.add('open');
     document.body.style.overflow='hidden';
-    renderPickerItems(type, '');
+    loadPickerData(type, '');
     setTimeout(function(){ document.getElementById('picker-search-input').focus(); }, 250);
   };
   window.closePicker = function(){
@@ -425,7 +538,11 @@
     _pickerField = null;
   };
   window.filterPicker = function(query){
-    renderPickerItems(_pickerType, query);
+    if(!PIC_DATA[_pickerType] || PIC_DATA[_pickerType].length === 0){
+      loadPickerData(_pickerType, query);
+    } else {
+      renderPickerItems(_pickerType, query);
+    }
   };
   window.handlePickerSelect = function(id){
     var field = document.getElementById(_pickerField);

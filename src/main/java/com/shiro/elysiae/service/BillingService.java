@@ -10,6 +10,7 @@ import com.shiro.elysiae.model.billing.Invoice;
 import com.shiro.elysiae.model.billing.InvoiceItem;
 import com.shiro.elysiae.model.billing.Payment;
 import com.shiro.elysiae.model.billing.ServiceRate;
+import com.shiro.elysiae.model.enums.AuditAction;
 import com.shiro.elysiae.model.enums.InvoiceStatus;
 import com.shiro.elysiae.model.enums.RateType;
 import com.shiro.elysiae.model.enums.WardType;
@@ -53,6 +54,7 @@ public class BillingService {
     private final MedicineRepository medicineRepository;
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
+    private final AuditService auditService;
 
     public ServiceRateDetails updateServiceRate(ServiceRateUpdateRequest request) {
         if(request.type() == null) {
@@ -61,6 +63,7 @@ public class BillingService {
         if(request.rate() == null) {
             throw new AppException(ErrorCode.SERVICE_RATE_INVALID);
         }
+
         String serviceKey = request.type().name();
         ServiceRate serviceRate = serviceRateRepository.findByServiceKeyAndIsActiveTrue(serviceKey)
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_RATE_NOT_FOUND));
@@ -69,12 +72,12 @@ public class BillingService {
         if(request.description() != null) {
             serviceRate.setDescription(request.description());
         }
-        serviceRate.setIsActive(request.isActive());
-        serviceRate.setUpdatedAt(LocalDateTime.now());
-        return serviceRateMapper.toDetails(serviceRateRepository.save(serviceRate));
 
-    }
-    public List<ServiceRateDetails> getAllServiceRates() {
+        serviceRate.setUpdatedAt(LocalDateTime.now());
+        ServiceRate saved = serviceRateRepository.save(serviceRate);
+        auditService.log(AuditAction.SERVICE_RATE_UPDATED.name(), saved.getServiceKey(), saved.getId());
+        return serviceRateMapper.toDetails(saved);
+    }    public List<ServiceRateDetails> getAllServiceRates() {
         return serviceRateRepository.findAll().stream().map(serviceRateMapper::toDetails).toList();
     }
 
@@ -94,9 +97,7 @@ public class BillingService {
         Admission admission = admissionRepository.findById(request.admissionId())
                 .orElseThrow(() -> new AppException(ErrorCode.ADMISSION_NOT_FOUND));
 
-        Ward ward = admission.getBed().getWard();
-
-        WardType wardType = ward.getType();
+        WardType wardType = admission.getBed().getWard().getType();
 
         LocalDateTime checkOut = admission.getDischargedAt() != null
                 ? admission.getDischargedAt()
@@ -107,10 +108,8 @@ public class BillingService {
                 checkOut
         ));
 
-        String serviceKey = "BED_" + wardType.name();
-
         ServiceRate serviceRate = serviceRateRepository
-                .findByServiceKeyAndIsActiveTrue(serviceKey)
+                .findByServiceKeyAndIsActiveTrue("BED_" + wardType.name())
                 .orElseThrow(() -> new AppException(ErrorCode.SERVICE_RATE_NOT_FOUND));
 
         BigDecimal totalWardFee = serviceRate.getRate()
@@ -124,9 +123,10 @@ public class BillingService {
                 .build();
 
         Invoice saved = invoiceRepository.save(invoice);
+        auditService.log(AuditAction.INVOICE_GENERATED.name(),
+                patient.getFirstName() + " " + patient.getLastName(), saved.getId());
         return invoiceMapper.toDetails(saved);
     }
-
     public InvoiceDetails getById(long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -143,42 +143,49 @@ public class BillingService {
 
         return invoiceMapper.toDetails(invoice);
     }
-    public InvoiceDetails addItems(long invoiceId, List<InvoiceItemAddRequest> requests) {
+    public InvoiceDetails recordPayment(long invoiceId, PaymentCreateRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        long currentUserId = Long.parseLong(auth.getName());
+
+        User cashier = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         Invoice invoice = invoiceRepository.findByIdWithDetails(invoiceId)
                 .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_FOUND));
 
-        List<InvoiceItem> newItems = requests.stream()
-                .map(req -> {
-                    BigDecimal unitPrice = resolveUnitPrice(req);
+        if (invoice.getStatus() == InvoiceStatus.PAID)
+            throw new AppException(ErrorCode.INVOICE_ALREADY_PAID);
 
-                    return InvoiceItem.builder()
-                            .invoice(invoice)
-                            .description(req.description())
-                            .category(req.category())
-                            .unitPrice(unitPrice)
-                            .quantity(req.quantity())
-                            .subtotal(unitPrice.multiply(BigDecimal.valueOf(req.quantity())))
-                            .build();
-                })
-                .toList();
+        BigDecimal remaining = invoice.getTotalAmount().subtract(invoice.getPaidAmount());
+        if (request.amount().compareTo(remaining) > 0)
+            throw new AppException(ErrorCode.OVERPAYMENT);
 
-        invoiceItemRepository.saveAll(newItems);
-        invoice.getItems().addAll(newItems);
+        Payment payment = Payment.builder()
+                .invoice(invoice)
+                .amount(request.amount())
+                .method(request.method())
+                .receivedBy(cashier)
+                .build();
 
-        BigDecimal newTotal = invoice.getItems().stream()
-                .map(InvoiceItem::getSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        paymentRepository.save(payment);
 
-        invoice.setTotalAmount(newTotal);
+        invoice.setPaidAmount(invoice.getPaidAmount().add(request.amount()));
+        invoice.setStatus(
+                invoice.getPaidAmount().compareTo(invoice.getTotalAmount()) >= 0
+                        ? InvoiceStatus.PAID
+                        : InvoiceStatus.PARTIAL
+        );
         invoiceRepository.save(invoice);
+
+        auditService.log(AuditAction.PAYMENT_RECEIVED.name(),
+                invoice.getPatient().getFirstName() + " " + invoice.getPatient().getLastName(),
+                invoiceId);
 
         return invoiceMapper.toDetails(
                 invoiceRepository.findByIdWithDetails(invoiceId)
                         .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_FOUND))
         );
     }
-
     private BigDecimal resolveUnitPrice(InvoiceItemAddRequest req) {
         return switch (req.category()) {
             case MEDICINE -> {
@@ -215,39 +222,39 @@ public class BillingService {
         };
     }
 
-    public InvoiceDetails recordPayment(long invoiceId, PaymentCreateRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        long currentUserId = Long.parseLong(auth.getName());
-
-        User cashier = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    public InvoiceDetails addItems(long invoiceId, List<InvoiceItemAddRequest> requests) {
 
         Invoice invoice = invoiceRepository.findByIdWithDetails(invoiceId)
                 .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_FOUND));
 
-        if (invoice.getStatus() == InvoiceStatus.PAID)
-            throw new AppException(ErrorCode.INVOICE_ALREADY_PAID);
+        List<InvoiceItem> newItems = requests.stream()
+                .map(req -> {
+                    BigDecimal unitPrice = resolveUnitPrice(req);
 
-        BigDecimal remaining = invoice.getTotalAmount().subtract(invoice.getPaidAmount());
-        if (request.amount().compareTo(remaining) > 0)
-            throw new AppException(ErrorCode.OVERPAYMENT);
+                    return InvoiceItem.builder()
+                            .invoice(invoice)
+                            .description(req.description())
+                            .category(req.category())
+                            .unitPrice(unitPrice)
+                            .quantity(req.quantity())
+                            .subtotal(unitPrice.multiply(BigDecimal.valueOf(req.quantity())))
+                            .build();
+                })
+                .toList();
 
-        Payment payment = Payment.builder()
-                .invoice(invoice)
-                .amount(request.amount())
-                .method(request.method())
-                .receivedBy(cashier)
-                .build();
+        invoiceItemRepository.saveAll(newItems);
+        invoice.getItems().addAll(newItems);
 
-        paymentRepository.save(payment);
+        BigDecimal newTotal = invoice.getItems().stream()
+                .map(InvoiceItem::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        invoice.setPaidAmount(invoice.getPaidAmount().add(request.amount()));
-        invoice.setStatus(
-                invoice.getPaidAmount().compareTo(invoice.getTotalAmount()) >= 0
-                        ? InvoiceStatus.PAID
-                        : InvoiceStatus.PARTIAL
-        );
+        invoice.setTotalAmount(newTotal);
         invoiceRepository.save(invoice);
+
+        auditService.log(AuditAction.INVOICE_ITEM_ADDED.name(),
+                invoice.getPatient().getFirstName() + " " + invoice.getPatient().getLastName(),
+                invoiceId);
 
         return invoiceMapper.toDetails(
                 invoiceRepository.findByIdWithDetails(invoiceId)
@@ -255,13 +262,13 @@ public class BillingService {
         );
     }
 
-
     public Page<PaymentSummary> getPaymentsFromInvoice(long id, Pageable pageable) {
         return paymentRepository.findByInvoiceId(id,pageable).map(invoiceMapper::toPaymentSummary);
     }
 
     public PaymentDetails getPaymentDetails(long id) {
-        return invoiceMapper.toPaymentDetails(paymentRepository.findByInvoiceId(id));
+        return invoiceMapper.toPaymentDetails(paymentRepository.findByInvoiceId(id)
+                .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_FOUND)));
     }
 
 }
