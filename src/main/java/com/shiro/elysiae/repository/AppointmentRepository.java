@@ -31,7 +31,18 @@ public interface AppointmentRepository extends JpaRepository<Appointment,Long> {
             @Param("patientId") Long patientId,
             Pageable pageable
     );
-
+    @Query("""
+    SELECT a
+    FROM Appointment a
+    JOIN FETCH a.doctor d
+    WHERE a.patient.id = :patientId
+    AND a.status = 'COMPLETED'
+    AND a.invoice IS NULL
+    ORDER BY a.appointmentDateTime DESC
+""")
+    List<Appointment> findBillableAppointments(
+            @Param("patientId") Long patientId
+    );
     @Query("""
     SELECT a FROM Appointment a
     WHERE (:patientId = 0 OR a.patient.id = :patientId)

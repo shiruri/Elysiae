@@ -9,6 +9,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -54,9 +55,12 @@ public class Invoice {
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    // Invoice.java — already has this pattern from your other models
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<InvoiceItem> items;
+    @Builder.Default
+    private List<InvoiceItem> items = new ArrayList<>();
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Payment> payments;
+    @Builder.Default
+    private List<Payment> payments = new ArrayList<>();
 }

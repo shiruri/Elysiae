@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface BedRepository extends JpaRepository<Bed, Long> {
     @Query("""
@@ -22,4 +24,13 @@ public interface BedRepository extends JpaRepository<Bed, Long> {
             BedStatus status,
             Pageable pageable
     );
+
+    @Query("""
+    SELECT b
+    FROM Admission a
+    JOIN a.bed b
+    WHERE a.patient.id = :patientId
+    AND a.status = 'ADMITTED'
+""")
+    Optional<Bed> findCurrentBedByPatientId(Long patientId);
 }

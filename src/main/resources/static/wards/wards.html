@@ -104,14 +104,14 @@ tailwind.config = {
       <div class="tbl-hdr"><h3>Wards</h3></div>
       <table>
         <thead><tr><th>Ward</th><th>Type</th><th>Floor</th><th class="text-right">Action</th></tr></thead>
-        <tbody><tr><td colspan="4" class="text-center py-16"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><p>No wards configured</p><div class="empty-action"><button class="btn btn-primary btn-sm" onclick="showToast('Adding...','success')">Add first ward</button></div></div></td></tr></tbody>
+        <tbody><tr><td colspan="4" class="text-center py-16"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><p>No wards configured</p><div class="empty-action"><button class="btn btn-primary btn-sm" onclick="openModal('modal-ward-create')">Add first ward</button></div></div></td></tr></tbody>
       </table>
     </div>
     <div class="tbl">
       <div class="tbl-hdr"><h3>Current Admissions</h3></div>
       <table>
         <thead><tr><th>Patient</th><th>Ward/Bed</th><th>Doctor</th><th>Diagnosis</th><th class="text-right">Action</th></tr></thead>
-        <tbody><tr><td colspan="5" class="text-center py-16"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><p>No active admissions</p><div class="empty-action"><button class="btn btn-primary btn-sm" onclick="showToast('Admitting...','success')">Admit patient</button></div></div></td></tr></tbody>
+        <tbody><tr><td colspan="5" class="text-center py-16"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><p>No active admissions</p><div class="empty-action"><button class="btn btn-primary btn-sm" onclick="openModal('modal-admission-create')">Admit patient</button></div></div></td></tr></tbody>
       </table>
     </div>
   </div>

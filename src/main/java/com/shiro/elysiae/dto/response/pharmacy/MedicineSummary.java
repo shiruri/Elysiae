@@ -1,7 +1,6 @@
 package com.shiro.elysiae.dto.response.pharmacy;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 public record MedicineSummary(
 

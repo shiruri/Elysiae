@@ -1,5 +1,6 @@
 package com.shiro.elysiae.model.appointments;
 
+import com.shiro.elysiae.model.billing.Invoice;
 import com.shiro.elysiae.model.doctorsndepartment.Doctor;
 import com.shiro.elysiae.model.enums.AppointmentStatus;
 import com.shiro.elysiae.model.enums.AppointmentType;
@@ -70,7 +71,9 @@ public class Appointment {
     private Instant createdAt;
 
 
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "invoice_id")
+    private Invoice invoice;
 
     @PrePersist
     public void prePersist() {

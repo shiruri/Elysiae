@@ -98,10 +98,10 @@ tailwind.config = {
   </div>
   <div class="grid-2">
     <div class="tbl">
-      <div class="tbl-hdr"><h3>Upcoming Appointments</h3><button class="btn btn-primary btn-sm" onclick="showToast('Creating appointment...','success')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New</button></div>
+      <div class="tbl-hdr"><h3>Upcoming Appointments</h3><button class="btn btn-primary btn-sm" onclick="openModal('modal-appt-create')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New</button></div>
       <table>
         <thead><tr><th>Patient</th><th>Doctor</th><th>Date/Time</th><th>Status</th><th class="text-right">Action</th></tr></thead>
-        <tbody><tr><td colspan="5" class="text-center py-16"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><p>No upcoming appointments</p><div class="empty-action"><button class="btn btn-primary btn-sm" onclick="showToast('Creating...','success')">Schedule first</button></div></div></td></tr></tbody>
+        <tbody><tr><td colspan="5" class="text-center py-16"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg><p>No upcoming appointments</p><div class="empty-action"><button class="btn btn-primary btn-sm" onclick="openModal('modal-appt-create')">Schedule first</button></div></div></td></tr></tbody>
       </table>
     </div>
     <div class="tbl">

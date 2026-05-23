@@ -5,6 +5,14 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+    SERVICE_RATE_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "Service Rate Not Found"
+    ),
+    SERVICE_RATE_INVALID(
+            HttpStatus.BAD_REQUEST,
+            "Invalid price or service type given"
+    ),
     MEDICINE_INSUFFICIENT_STOCK(
             HttpStatus.BAD_REQUEST,
             "Medicine Stock insufficient"

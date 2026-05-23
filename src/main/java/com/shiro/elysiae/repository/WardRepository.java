@@ -2,11 +2,13 @@ package com.shiro.elysiae.repository;
 
 import com.shiro.elysiae.dto.response.wardsandbeds.WardsSummary;
 import com.shiro.elysiae.model.enums.WardType;
+import com.shiro.elysiae.model.patient.Patient;
 import com.shiro.elysiae.model.wardsbedsadmission.Ward;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -36,4 +38,6 @@ public interface WardRepository extends JpaRepository<Ward, Long> {
             String floor,
             Pageable pageable
     );
+
+    Patient findByPatientId(@Param("patient_id")long patientId);
 }

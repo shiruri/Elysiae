@@ -1,9 +1,6 @@
 package com.shiro.elysiae.util;
 
-import com.shiro.elysiae.dto.response.billing.InvoiceDetails;
-import com.shiro.elysiae.dto.response.billing.InvoiceItemSummary;
-import com.shiro.elysiae.dto.response.billing.InvoiceSummary;
-import com.shiro.elysiae.dto.response.billing.PaymentSummary;
+import com.shiro.elysiae.dto.response.billing.*;
 import com.shiro.elysiae.model.billing.Invoice;
 import com.shiro.elysiae.model.billing.InvoiceItem;
 import com.shiro.elysiae.model.billing.Payment;
@@ -34,6 +31,8 @@ public interface InvoiceMapper {
     InvoiceItemSummary toItemSummary(InvoiceItem item);
 
     PaymentSummary toPaymentSummary(Payment payment);
-
+    @Mapping(target = "invoiceId",   source = "invoice.id")
+    @Mapping(target = "receivedBy",  source = "receivedBy.username")
+    PaymentDetails toPaymentDetails(Payment payment);
     List<InvoiceSummary> toSummaryList(List<Invoice> invoices);
 }
