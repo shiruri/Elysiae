@@ -1,13 +1,9 @@
 (function() {
   'use strict';
 
-  function rootPath() {
-    var depth = location.pathname.replace(/\/$/,'').split('/').length - 2;
-    return depth > 0 ? '../'.repeat(depth) : './';
+  function rel(path) {
+    return /\/?(?:login|changepassword|index|reset-password)\.html$/.test(location.pathname) ? path : '../' + path;
   }
-  var toRoot = rootPath();
-  var toLogin = toRoot + 'login.html';
-  var toDashboard = toRoot + 'dashboard/dashboard.html';
 
   window.showToast = window.showToast || function(message, type) {
     type = type || 'info';
@@ -36,7 +32,7 @@
     }, 3500);
   };
 
-  var publicPages = ['login', 'index', ''];
+  var publicPages = ['login', 'index', 'changepassword', 'reset-password', ''];
 
   function getPage() {
     return location.pathname.split('/').filter(Boolean).pop().replace('.html','') || '';
@@ -80,7 +76,7 @@
       }
       localStorage.removeItem('elysiae-token');
       localStorage.removeItem('elysiae-user');
-      window.location.href = toLogin;
+      window.location.href = rel('login.html');
     },
     changePassword: function(oldPassword, newPassword) {
       var self = this;
@@ -98,21 +94,31 @@
 
   function guard() {
     if (isPublic()) {
-      if (getPage() === 'login' && Auth.isLoggedIn()) {
-        var params = new URLSearchParams(location.search);
-        if (!params.get('changePassword')) {
-          window.location.href = toDashboard;
+      if (getPage() === 'changepassword') {
+        if (!Auth.isLoggedIn()) {
+          window.location.href = rel('login.html');
+          return;
         }
+        var user = Auth.getUser();
+        if (user && !user.mustChangePassword) {
+          window.location.href = rel('dashboard/dashboard.html');
+          return;
+        }
+        return;
+      }
+      if (getPage() === 'login') {
+        localStorage.removeItem('elysiae-token');
+        localStorage.removeItem('elysiae-user');
       }
       return;
     }
     if (!Auth.isLoggedIn()) {
-      window.location.href = toLogin;
+      window.location.href = rel('login.html');
       return;
     }
     var user = Auth.getUser();
     if (user && user.mustChangePassword) {
-      window.location.href = toLogin + '?changePassword=1';
+      window.location.href = rel('changepassword.html');
       return;
     }
   }
@@ -129,38 +135,6 @@
 
     var btn = document.getElementById('login-btn');
 
-    var params = new URLSearchParams(location.search);
-    if (params.get('changePassword')) {
-      var oldIdx = -1, newIdx = -1, btnIdx = -1;
-      var children = form.querySelectorAll('input, button');
-      for (var i = 0; i < children.length; i++) {
-        if (children[i].id === 'password') oldIdx = i;
-      }
-      form.innerHTML =
-        '<div class="flex flex-col gap-4">' +
-        '<div class="alert alert-warning" style="padding:.55rem .85rem;border-radius:8px;font-size:.8125rem;display:flex;align-items:center;gap:.5rem;background:#fffbeb;color:#b45309">Your password must be changed before continuing.</div>' +
-        '<div class="form-group"><label class="form-label" for="cp-old">Current Password</label><input type="password" id="cp-old" class="form-input" required></div>' +
-        '<div class="form-group"><label class="form-label" for="cp-new">New Password</label><input type="password" id="cp-new" class="form-input" required minlength="6"></div>' +
-        '<button type="submit" class="w-full mt-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-base font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors shadow-sm" id="cp-btn">Change Password</button>' +
-        '</div>';
-
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        var oldPw = document.getElementById('cp-old').value;
-        var newPw = document.getElementById('cp-new').value;
-        var newBtn = document.getElementById('cp-btn');
-        newBtn.disabled = true;
-        Auth.changePassword(oldPw, newPw).then(function() {
-          showToast('Password changed successfully! Redirecting...', 'success');
-          setTimeout(function() { window.location.href = toDashboard; }, 1000);
-        }).catch(function(err) {
-          showToast(err.message, 'error');
-          newBtn.disabled = false;
-        });
-      });
-      return;
-    }
-
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       btn.disabled = true;
@@ -168,9 +142,9 @@
       var password = document.getElementById('password').value;
       Auth.login(username, password).then(function(data) {
         if (data.user.mustChangePassword) {
-          window.location.href = toLogin + '?changePassword=1';
+          window.location.href = rel('changepassword.html');
         } else {
-          window.location.href = toDashboard;
+          window.location.href = rel('dashboard/dashboard.html');
         }
       }).catch(function(err) {
         showToast(err.message, 'error');

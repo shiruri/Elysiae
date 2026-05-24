@@ -44,36 +44,93 @@
 
   /* ── Dashboard ── */
   if(page === 'dashboard') {
-    API.get('/api/reports/dashboard').then(function(d) {
-      var cards = document.querySelectorAll('.s-value');
-      if(cards.length >= 4) {
-        cards[0].textContent = d.totalPatients != null ? d.totalPatients : '--';
-        cards[1].textContent = d.appointmentsToday != null ? d.appointmentsToday : '--';
-        cards[2].textContent = d.admittedPatients != null ? d.admittedPatients : '--';
-        cards[3].textContent = d.revenueToday != null ? '$' + d.revenueToday : '$--';
-      }
-      var subs = document.querySelectorAll('.s-sub');
-      if(subs.length >= 4 && d.metrics) {
-        if(d.metrics.patientGrowth) subs[0].textContent = d.metrics.patientGrowth;
-        if(d.metrics.apptGrowth) subs[1].textContent = d.metrics.apptGrowth;
-        if(d.metrics.admissionGrowth) subs[2].textContent = d.metrics.admissionGrowth;
-        if(d.metrics.revenueGrowth) subs[3].textContent = d.metrics.revenueGrowth;
-      }
-    }).catch(function(err){ showToast(err.message, 'error'); });
+    var role = Auth.getRole();
 
+    /* ── Stat cards ── */
+    function setStat(index, val, sub) {
+      var cards = document.querySelectorAll('.s-value');
+      if(cards.length > index) cards[index].textContent = val != null ? val : '--';
+      var subs = document.querySelectorAll('.s-sub');
+      if(subs.length > index && sub) subs[index].textContent = sub;
+    }
+
+    /* ADMIN gets full dashboard report */
+    if(role === 'ADMIN') {
+      API.get('/api/reports/dashboard').then(function(d) {
+        setStat(0, d.totalPatients, '+0%');
+        setStat(1, d.appointmentsToday, '+0%');
+        setStat(2, d.occupiedBeds + '/' + d.totalBeds, d.availableBeds + ' available');
+        setStat(3, '$' + (d.revenueToday || '0.00'), '+0%');
+      }).catch(function(){});
+    } else if(role === 'DOCTOR' || role === 'NURSE' || role === 'RECEPTIONIST') {
+      API.post('/api/appointments?page=0&size=100', {}).then(function(d) {
+        var items = d.content || d || [];
+        var today = new Date().toISOString().slice(0,10);
+        var todayAppts = items.filter(function(a){ return a.appointmentDateTime && a.appointmentDateTime.slice(0,10) === today; });
+        setStat(0, items.length, 'Total appointments');
+        setStat(1, todayAppts.length, 'Today');
+        setStat(2, '--', '');
+        setStat(3, '--', '');
+      }).catch(function(){ setStat(0, '--'); setStat(1, '--'); });
+    } else if(role === 'PATIENT') {
+      API.get('/api/appointments/me?page=0&size=100').then(function(d) {
+        var items = d.content || d || [];
+        var today = new Date().toISOString().slice(0,10);
+        var todayAppts = items.filter(function(a){ return a.appointmentDateTime && a.appointmentDateTime.slice(0,10) === today; });
+        setStat(0, items.length, 'Total appointments');
+        setStat(1, todayAppts.length, 'Today');
+        setStat(2, '--', '');
+        setStat(3, '--', '');
+      }).catch(function(){});
+    } else {
+      setStat(0, '--'); setStat(1, '--'); setStat(2, '--'); setStat(3, '--');
+    }
+
+    /* ── Appointments table & Recent Activity ── */
     var tblBody = document.querySelector('.tbl table tbody');
+    var activityCtn = document.querySelector('.activity');
     if(tblBody) {
       loading(tblBody);
-      API.post('/api/appointments', {page:0,size:5}).then(function(d) {
+      var apptPromise;
+      if(role === 'ADMIN' || role === 'DOCTOR' || role === 'NURSE' || role === 'RECEPTIONIST') {
+        apptPromise = API.post('/api/appointments?page=0&size=5', {});
+      } else {
+        apptPromise = API.get('/api/appointments/me?page=0&size=5');
+      }
+      apptPromise.then(function(d) {
         var items = d.content || d || [];
         if(!items.length) {
           empty(tblBody, 'No upcoming appointments', '<div class="empty-action"><button class="btn btn-primary btn-sm" onclick="openModal(\'modal-appt-create\')">Schedule first</button></div>');
           return;
         }
         tblBody.innerHTML = items.map(function(a){
-          return '<tr><td>' + esc(a.patientName) + '</td><td>' + esc(a.doctorName) + '</td><td>' + esc(a.appointmentDateTime) + '</td><td><span class="badge badge-teal">' + esc(a.status) + '</span></td><td class="text-right"><button class="btn btn-ghost btn-sm" onclick="openModal(\'modal-appt-update\')">Edit</button></td></tr>';
+          var statusMap = {SCHEDULED:'badge-teal',CONFIRMED:'badge-teal',IN_PROGRESS:'badge-amber',COMPLETED:'badge-green',CANCELLED:'badge-red',NO_SHOW:'badge-red'};
+          var badgeClass = statusMap[a.status] || 'badge-teal';
+          return '<tr><td>' + esc(a.patientFullName) + '</td><td>' + esc(a.doctorFullName) + '</td><td>' + esc(a.appointmentDateTime) + '</td><td><span class="badge ' + badgeClass + '">' + esc(a.status) + '</span></td><td class="text-right"><button class="btn btn-ghost btn-sm" onclick="openModal(\'modal-appt-update\')">Edit</button></td></tr>';
         }).join('');
+
+        if(activityCtn) {
+          activityCtn.innerHTML = items.slice(0,4).map(function(a){
+            var dotColor = a.status === 'CANCELLED' ? 'red' : a.status === 'COMPLETED' ? 'green' : 'blue';
+            var label = a.status === 'CANCELLED' ? 'Appointment cancelled' : 'Appointment ' + (a.status || 'booked').toLowerCase();
+            return '<div class="activity-item"><div class="activity-dot ' + dotColor + '"></div><div><div class="activity-text">' + esc(label) + ' - ' + esc(a.patientFullName) + ' with Dr. ' + esc(a.doctorFullName) + '</div><div class="activity-time">' + esc(a.appointmentDateTime || '') + '</div></div></div>';
+          }).join('');
+        }
       }).catch(function(err){ showToast(err.message, 'error'); empty(tblBody, 'Failed to load appointments'); });
+
+      if(role === 'ADMIN' && activityCtn) {
+        API.get('/api/audit-log?page=0&size=3').then(function(d) {
+          var logItems = d.content || [];
+          if(!logItems.length) return;
+          var actionColors = {PATIENT_CREATED:'green',PATIENT_UPDATED:'blue',APPOINTMENT_BOOKED:'teal',APPOINTMENT_CANCELLED:'red',PAYMENT_RECEIVED:'purple',INVOICE_GENERATED:'amber',PATIENT_ADMITTED:'green',PATIENT_DISCHARGED:'orange',USER_LOGIN:'blue',USER_LOGOUT:'gray'};
+          var logHtml = logItems.map(function(a){
+            var c = actionColors[a.action] || 'blue';
+            var l = (a.action||'').replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+            return '<div class="activity-item"><div class="activity-dot ' + c + '"></div><div><div class="activity-text">' + esc(l) + '</div><div class="activity-time">User #' + a.userid + '</div></div></div>';
+          }).join('');
+          activityCtn.innerHTML = logHtml + activityCtn.innerHTML;
+        }).catch(function(){});
+      }
     }
   }
 
@@ -171,9 +228,8 @@
     function loadAppointments() {
       if(!tblBody) return;
       loading(tblBody);
-      var body = {page:state.page, size:state.size};
-      if(state.query) body.keyword = state.query;
-      API.post('/api/appointments', body).then(function(d) {
+      var queryStr = '?page=' + state.page + '&size=' + state.size;
+      API.post('/api/appointments' + queryStr, {}).then(function(d) {
         var items = d.content || d || [];
         state.total = d.totalElements || items.length;
         var statusMap = {SCHEDULED:'badge-teal',CONFIRMED:'badge-teal',IN_PROGRESS:'badge-amber',COMPLETED:'badge-green',CANCELLED:'badge-red',NO_SHOW:'badge-red'};
@@ -182,7 +238,7 @@
         } else {
           tblBody.innerHTML = items.map(function(a){
             var badgeClass = statusMap[a.status] || 'badge-teal';
-            return '<tr><td>' + esc(a.patientName) + '</td><td>' + esc(a.doctorName) + '</td><td>' + esc(a.appointmentDateTime) + '</td><td><span class="badge ' + badgeClass + '">' + esc(a.status) + '</span></td><td class="text-right"><div class="flex gap-1 justify-end"><button class="btn btn-ghost btn-sm" onclick="openModal(\'modal-appt-update\')">Edit</button></div></td></tr>';
+            return '<tr><td>' + esc(a.patientFullName) + '</td><td>' + esc(a.doctorFullName) + '</td><td>' + esc(a.appointmentDateTime) + '</td><td><span class="badge ' + badgeClass + '">' + esc(a.status) + '</span></td><td class="text-right"><div class="flex gap-1 justify-end"><button class="btn btn-ghost btn-sm" onclick="openModal(\'modal-appt-update\')">Edit</button></div></td></tr>';
           }).join('');
         }
         pagination(paginationCtn, state.total, state.page, state.size, function(p){ state.page=p; loadAppointments(); });
@@ -338,6 +394,201 @@
     }
     _reload = loadAdmissions;
     loadAdmissions();
+  }
+
+  /* ── Staff (Users) ── */
+  if(page === 'staff') {
+    var tblBody = document.querySelector('.tbl table tbody');
+    var searchInput = document.querySelector('.filter-bar input');
+    var filterBtn = document.querySelector('.filter-bar .btn-primary');
+    var paginationCtn = document.querySelector('.tbl') ? (function(){ var d=document.createElement('div'); document.querySelector('.tbl').appendChild(d); return d; })() : null;
+
+    function loadStaff() {
+      if(!tblBody) return;
+      loading(tblBody);
+      var body = {page:state.page, size:state.size};
+      if(state.query) body.keyword = state.query;
+      API.post('/api/auth/search-users', body).then(function(d) {
+        var items = d.content || d || [];
+        state.total = d.totalElements || items.length;
+        if(!items.length) {
+          empty(tblBody, 'No staff accounts found', '<div class="empty-action"><button class="btn btn-primary btn-sm" onclick="openModal(\'modal-user-create\')">Create staff account</button></div>');
+        } else {
+          var roleLabels = {ADMIN:'Admin',DOCTOR:'Doctor',NURSE:'Nurse',RECEPTIONIST:'Receptionist',LAB_TECH:'Lab Tech',PHARMACIST:'Pharmacist',CASHIER:'Cashier',PATIENT:'Patient'};
+          tblBody.innerHTML = items.map(function(u){
+            var roleLabel = roleLabels[u.role] || u.role;
+            var statusHtml = u.mustChangePassword ? '<span class="badge badge-amber">Temp</span>' : '<span class="badge badge-green">Active</span>';
+            return '<tr><td><span class="font-medium">' + esc(u.username) + '</span></td><td>' + roleLabel + '</td><td>' + statusHtml + '</td><td class="text-right"><div class="flex gap-1 justify-end"><button class="btn btn-ghost btn-sm" onclick="openModal(\'modal-user-update\')">Edit</button><button class="btn btn-ghost btn-sm text-red-500" onclick="confirm(\'Delete user?\')&&API.del(\'/api/auth/'+u.id+'\').then(function(){loadStaff();showToast(\'Deleted\',\'success\');}).catch(function(e){showToast(e.message,\'error\');})">Del</button></div></td></tr>';
+          }).join('');
+        }
+        pagination(paginationCtn, state.total, state.page, state.size, function(p){ state.page=p; loadStaff(); });
+      }).catch(function(err){ showToast(err.message, 'error'); empty(tblBody, 'Failed to load staff'); });
+    }
+
+    if(filterBtn) {
+      filterBtn.addEventListener('click', function(){
+        state.query = searchInput ? searchInput.value : '';
+        state.page = 0;
+        loadStaff();
+      });
+    }
+    if(searchInput) {
+      searchInput.addEventListener('keydown', function(e){ if(e.key==='Enter'&&filterBtn)filterBtn.click(); });
+    }
+
+    _reload = loadStaff;
+    loadStaff();
+  }
+
+  /* ── Reports ── */
+  if(page === 'reports') {
+    API.get('/api/reports/dashboard').then(function(d) {
+      var cards = document.querySelectorAll('.s-value');
+      if(cards.length >= 4) {
+        cards[0].textContent = d.appointmentsToday != null ? d.appointmentsToday : '--';
+        cards[1].textContent = d.totalRevenue != null ? '$' + d.totalRevenue : '$--';
+        cards[2].textContent = d.occupiedBeds != null && d.totalBeds ? Math.round(d.occupiedBeds/d.totalBeds*100) + '%' : '--%';
+        cards[3].textContent = d.occupiedBeds != null ? d.occupiedBeds : '--';
+      }
+      var subs = document.querySelectorAll('.s-sub');
+      if(subs.length >= 4 && d.availableBeds != null) {
+        subs[0].textContent = d.availableBeds + ' available';
+        subs[1].textContent = d.totalRevenue ? 'Total revenue' : '--';
+        subs[2].textContent = d.totalBeds ? d.totalBeds + ' total beds' : '--';
+        subs[3].textContent = d.occupiedBeds + ' occupied';
+      }
+    }).catch(function(err){ showToast(err.message, 'error'); });
+
+    var tblBody = document.querySelector('.tbl table tbody');
+    if(tblBody) {
+      loading(tblBody);
+      API.get('/api/audit-log').then(function(d) {
+        var items = d.content || d || [];
+        if(!items.length) {
+          empty(tblBody, 'No activity logged yet');
+        } else {
+          tblBody.innerHTML = items.map(function(a){
+            return '<tr><td>' + esc(a.userid || '--') + '</td><td>' + esc(a.action || '--') + '</td><td>--</td><td>--</td><td class="text-right"><button class="btn btn-ghost btn-sm">View</button></td></tr>';
+          }).join('');
+        }
+      }).catch(function(err){ empty(tblBody, 'No activity logged yet'); });
+    }
+  }
+
+  /* ── Service Rate ── */
+  if(page === 'service-rate') {
+    var tblBody = document.querySelector('.tbl table tbody');
+    var filterBtn = document.querySelector('.filter-bar .btn-primary');
+    var searchInput = document.querySelector('.filter-bar input');
+
+    function renderServiceRates(items) {
+      window._serviceRates = items;
+      var totalEl = document.getElementById('sr-total');
+      var activeEl = document.getElementById('sr-active');
+      var inactiveEl = document.getElementById('sr-inactive');
+      var typesEl = document.getElementById('sr-types');
+      var activeCount = items.filter(function(r){ return r.isActive === true || r.active === true; }).length;
+      if(totalEl) totalEl.textContent = items.length;
+      if(activeEl) activeEl.textContent = activeCount;
+      if(inactiveEl) inactiveEl.textContent = items.length - activeCount;
+      if(typesEl) {
+        var unique = items.map(function(r){ return r.type; }).filter(function(v,i,a){ return a.indexOf(v)===i; });
+        typesEl.textContent = unique.length;
+      }
+      if(!items.length) {
+        empty(tblBody, 'No service rates configured');
+      } else {
+        tblBody.innerHTML = items.map(function(r){
+          var isActive = r.isActive === true || r.active === true;
+          var activeBadge = isActive ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Inactive</span>';
+          return '<tr><td><span class="font-medium">' + esc(r.type || r.serviceKey) + '</span></td><td>' + esc(r.serviceKey || '') + '</td><td><span class="font-medium">$' + (r.rate || '0.00') + '</span></td><td>' + activeBadge + '</td><td class="text-right"><button class="btn btn-ghost btn-sm" onclick="editServiceRate(' + r.serviceRate + ')">Edit</button></td></tr>';
+        }).join('');
+      }
+    }
+
+    function loadServiceRates() {
+      if(!tblBody) return;
+      loading(tblBody);
+      window._allRates = [];
+      API.get('/api/billing/service-rate').then(function(data) {
+        var items = data || [];
+        window._allRates = items;
+        renderServiceRates(items);
+      }).catch(function(err){ showToast(err.message, 'error'); empty(tblBody, 'Failed to load service rates'); });
+    }
+
+    if(filterBtn && searchInput) {
+      filterBtn.addEventListener('click', function(){
+        var q = searchInput.value.toLowerCase();
+        var filtered = window._allRates.filter(function(r){
+          return (r.type || '').toLowerCase().indexOf(q) !== -1 || (r.serviceKey || '').toLowerCase().indexOf(q) !== -1;
+        });
+        renderServiceRates(filtered);
+      });
+      searchInput.addEventListener('keydown', function(e){ if(e.key==='Enter') filterBtn.click(); });
+    }
+
+    window.editServiceRate = function(id) {
+      var items = window._serviceRates || [];
+      var rate = items.find(function(r){ return r.serviceRate === id; });
+      if(!rate) return;
+      var el = document.getElementById('modal-service-rate-update');
+      if(!el) return;
+      var idInput = el.querySelector('#sr-id');
+      var typeInput = el.querySelector('#sr-type');
+      var rateInput = el.querySelector('#sr-rate');
+      var descInput = el.querySelector('#sr-description');
+      var activeInput = el.querySelector('#sr-isActive');
+      if(idInput) idInput.value = rate.serviceRate;
+      if(typeInput) typeInput.value = rate.type || '';
+      if(rateInput) rateInput.value = rate.rate;
+      if(descInput) descInput.value = rate.description || '';
+      if(activeInput) activeInput.value = rate.isActive === true || rate.active === true ? 'true' : 'false';
+      openModal('modal-service-rate-update');
+    };
+
+    _reload = loadServiceRates;
+    loadServiceRates();
+  }
+
+  /* ── Audit ── */
+  if(page === 'audit') {
+    var tblBody = document.querySelector('.tbl table tbody');
+    var filterBtn = document.querySelector('.filter-bar .btn-primary');
+    var searchInput = document.querySelector('.filter-bar input');
+    var paginationCtn = document.querySelector('.tbl') ? (function(){ var d=document.createElement('div'); document.querySelector('.tbl').appendChild(d); return d; })() : null;
+
+    function loadAudit() {
+      if(!tblBody) return;
+      loading(tblBody);
+      var q = state.query ? '?action=' + encodeURIComponent(state.query) : '';
+      API.get('/api/audit-log' + q).then(function(d) {
+        var items = d.content || d || [];
+        state.total = d.totalElements || items.length;
+        if(!items.length) {
+          empty(tblBody, 'No audit logs found');
+        } else {
+          tblBody.innerHTML = items.map(function(a){
+            return '<tr><td>' + esc(a.userid || '--') + '</td><td><span class="badge badge-teal">' + esc(a.action || '--') + '</span></td><td>--</td><td>--</td></tr>';
+          }).join('');
+        }
+        pagination(paginationCtn, state.total, state.page, state.size, function(p){ state.page=p; loadAudit(); });
+      }).catch(function(err){ showToast(err.message, 'error'); empty(tblBody, 'Failed to load audit logs'); });
+    }
+
+    if(filterBtn) {
+      filterBtn.addEventListener('click', function(){
+        state.query = searchInput ? searchInput.value : '';
+        state.page = 0;
+        loadAudit();
+      });
+    }
+    if(searchInput) {
+      searchInput.addEventListener('keydown', function(e){ if(e.key==='Enter'&&filterBtn)filterBtn.click(); });
+    }
+
+    _reload = loadAudit;
+    loadAudit();
   }
 
 })();

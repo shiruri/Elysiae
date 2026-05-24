@@ -224,7 +224,7 @@ button{font-family:inherit;cursor:pointer;background:none;border:none}
 /* table */
 .tbl{
   background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);overflow:hidden
+  border-radius:var(--radius);overflow:visible
 }
 .tbl-hdr{
   padding:.75rem 1.125rem;border-bottom:1px solid var(--border);
@@ -656,7 +656,7 @@ body.sidebar-pos-transitioning .main-wrap{transition:none!important}
 /* pagination */
 .pagination{
   display:flex;align-items:center;gap:.25rem;
-  justify-content:center;padding-top:1rem
+  justify-content:center;padding:1rem 0 1.25rem
 }
 .pg-btn{
   width:32px;height:32px;border-radius:8px;

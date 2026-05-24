@@ -7,21 +7,26 @@
     patients:       ['ADMIN','DOCTOR','NURSE','RECEPTIONIST'],
     doctors:        ['ADMIN','DOCTOR','RECEPTIONIST','PATIENT','NURSE'],
     records:        ['ADMIN','DOCTOR','NURSE'],
-    admissions:     ['ADMIN','RECEPTIONIST','DOCTOR','NURSE'],
+    lab:            ['ADMIN','DOCTOR','LAB_TECH','NURSE'],
+    pharmacy:       ['ADMIN','PHARMACIST','DOCTOR'],
+    admissions:     ['ADMIN','DOCTOR','NURSE','RECEPTIONIST'],
     wards:          ['ADMIN','RECEPTIONIST','DOCTOR','NURSE'],
     departments:    ['ADMIN','DOCTOR','RECEPTIONIST','PATIENT','NURSE'],
     billing:        ['ADMIN','CASHIER','PATIENT'],
     reports:        ['ADMIN'],
     staff:          ['ADMIN'],
     settings:       ['ADMIN','DOCTOR','NURSE','RECEPTIONIST','LAB_TECH','PHARMACIST','CASHIER','PATIENT'],
-    profile:        ['ADMIN','DOCTOR','NURSE','RECEPTIONIST','LAB_TECH','PHARMACIST','CASHIER','PATIENT']
+    profile:        ['ADMIN','DOCTOR','NURSE','RECEPTIONIST','LAB_TECH','PHARMACIST','CASHIER','PATIENT'],
+    'service-rate': ['ADMIN'],
+    audit:          ['ADMIN']
   };
 
   var PAGE_MODULE = {
     dashboard: 'dashboard', appointments: 'appointments', patients: 'patients',
-    doctors: 'doctors', records: 'records', admissions: 'admissions',
+    doctors: 'doctors', records: 'records', lab: 'lab', pharmacy: 'pharmacy', admissions: 'admissions',
     wards: 'wards', departments: 'departments', billing: 'billing',
-    reports: 'reports', staff: 'staff', settings: 'settings', profile: 'profile'
+    reports: 'reports', staff: 'staff', settings: 'settings', profile: 'profile',
+    'service-rate': 'service-rate', audit: 'audit'
   };
 
   function getRole() { return Auth.getRole(); }

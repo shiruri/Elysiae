@@ -366,6 +366,16 @@
         input('cp-oldPassword','Old Password','password','required maxlength="255"')
         + input('cp-newPassword','New Password','password','required maxlength="255"')),
       FTR],
+
+    /* SERVICE RATE — Update */
+    ['modal-service-rate-update', 'Update Service Rate',
+      fieldset('Rate Details',
+        input('sr-id','Rate ID','number','required min="1" placeholder="1"')
+        + select('sr-type','Type',[{v:'BED_GENERAL',l:'Bed General'},{v:'BED_ICU',l:'Bed ICU'},{v:'BED_PEDIATRIC',l:'Bed Pediatric'},{v:'BED_MATERNITY',l:'Bed Maternity'},{v:'BED_SURGICAL',l:'Bed Surgical'},{v:'CONSULTATION',l:'Consultation'},{v:'LAB_ROUTINE',l:'Lab Routine'},{v:'LAB_URGENT',l:'Lab Urgent'},{v:'LAB_STAT',l:'Lab STAT'}],'required')
++ input('sr-rate','Rate ($)','number','step="0.01" min="0" required placeholder="100.00"')
++ input('sr-description','Description','text','maxlength="255" placeholder="Standard consultation fee"')
++ select('sr-isActive','Status',[{v:'true',l:'Active'},{v:'false',l:'Inactive'}],'required')),
+      FTR],
   ];
 
   /* ---------- inject ---------- */
@@ -425,7 +435,8 @@
     'modal-invoice-create':     { m:'POST',  path:'/api/billing/generate/invoice' },
     'modal-user-create':        { m:'POST',  path:'/api/auth/register' },
     'modal-user-update':        { m:'PATCH', path:'/api/auth/update/{id}' },
-    'modal-user-password':      { m:'PATCH', path:'/api/auth/change-password/{id}' }
+    'modal-user-password':      { m:'PATCH', path:'/api/auth/change-password/{id}' },
+    'modal-service-rate-update':{ m:'PATCH', path:'/api/billing/service-rate' }
   };
 
   window.openModal = function(id){

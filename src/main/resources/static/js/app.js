@@ -710,7 +710,9 @@
     b: '../billing/billing.html',
     t: '../reports/reports.html',
     s: '../staff/staff.html',
-    g: '../settings/settings.html'
+    g: '../settings/settings.html',
+    c: '../service-rate/service-rate.html',
+    u: '../audit/audit.html'
   };
 
   function isTyping() {
@@ -859,5 +861,7 @@
       }, 1500);
     }
   });
+
+
 
 })();
